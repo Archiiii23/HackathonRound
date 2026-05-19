@@ -46,13 +46,11 @@ function ProjectLayout() {
       to: "/app/projects/$projectId/wiki" as const,
       resolved: `${resolvedBase}/wiki`,
       label: "Wiki",
-      disabled: true,
     },
     {
       to: "/app/projects/$projectId/snippets" as const,
       resolved: `${resolvedBase}/snippets`,
       label: "Snippets",
-      disabled: true,
     },
     {
       to: "/app/projects/$projectId/analytics" as const,

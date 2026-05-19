@@ -17,6 +17,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/app.projects.$projectId'
 import { Route as AppProjectsProjectIdIndexRouteImport } from './routes/app.projects.$projectId.index'
+import { Route as AppProjectsProjectIdWikiRouteImport } from './routes/app.projects.$projectId.wiki'
+import { Route as AppProjectsProjectIdSnippetsRouteImport } from './routes/app.projects.$projectId.snippets'
 import { Route as AppProjectsProjectIdListRouteImport } from './routes/app.projects.$projectId.list'
 import { Route as AppProjectsProjectIdBoardRouteImport } from './routes/app.projects.$projectId.board'
 
@@ -61,6 +63,18 @@ const AppProjectsProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AppProjectsProjectIdRoute,
   } as any)
+const AppProjectsProjectIdWikiRoute =
+  AppProjectsProjectIdWikiRouteImport.update({
+    id: '/wiki',
+    path: '/wiki',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
+const AppProjectsProjectIdSnippetsRoute =
+  AppProjectsProjectIdSnippetsRouteImport.update({
+    id: '/snippets',
+    path: '/snippets',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
 const AppProjectsProjectIdListRoute =
   AppProjectsProjectIdListRouteImport.update({
     id: '/list',
@@ -84,6 +98,8 @@ export interface FileRoutesByFullPath {
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
+  '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
+  '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
   '/app/projects/$projectId/': typeof AppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -94,6 +110,8 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
+  '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
+  '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
@@ -107,6 +125,8 @@ export interface FileRoutesById {
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
+  '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
+  '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
   '/app/projects/$projectId/': typeof AppProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -121,6 +141,8 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId'
     | '/app/projects/$projectId/board'
     | '/app/projects/$projectId/list'
+    | '/app/projects/$projectId/snippets'
+    | '/app/projects/$projectId/wiki'
     | '/app/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -131,6 +153,8 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/projects/$projectId/board'
     | '/app/projects/$projectId/list'
+    | '/app/projects/$projectId/snippets'
+    | '/app/projects/$projectId/wiki'
     | '/app/projects/$projectId'
   id:
     | '__root__'
@@ -143,6 +167,8 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId'
     | '/app/projects/$projectId/board'
     | '/app/projects/$projectId/list'
+    | '/app/projects/$projectId/snippets'
+    | '/app/projects/$projectId/wiki'
     | '/app/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
@@ -212,6 +238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AppProjectsProjectIdRoute
     }
+    '/app/projects/$projectId/wiki': {
+      id: '/app/projects/$projectId/wiki'
+      path: '/wiki'
+      fullPath: '/app/projects/$projectId/wiki'
+      preLoaderRoute: typeof AppProjectsProjectIdWikiRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
+    }
+    '/app/projects/$projectId/snippets': {
+      id: '/app/projects/$projectId/snippets'
+      path: '/snippets'
+      fullPath: '/app/projects/$projectId/snippets'
+      preLoaderRoute: typeof AppProjectsProjectIdSnippetsRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
+    }
     '/app/projects/$projectId/list': {
       id: '/app/projects/$projectId/list'
       path: '/list'
@@ -232,12 +272,16 @@ declare module '@tanstack/react-router' {
 interface AppProjectsProjectIdRouteChildren {
   AppProjectsProjectIdBoardRoute: typeof AppProjectsProjectIdBoardRoute
   AppProjectsProjectIdListRoute: typeof AppProjectsProjectIdListRoute
+  AppProjectsProjectIdSnippetsRoute: typeof AppProjectsProjectIdSnippetsRoute
+  AppProjectsProjectIdWikiRoute: typeof AppProjectsProjectIdWikiRoute
   AppProjectsProjectIdIndexRoute: typeof AppProjectsProjectIdIndexRoute
 }
 
 const AppProjectsProjectIdRouteChildren: AppProjectsProjectIdRouteChildren = {
   AppProjectsProjectIdBoardRoute: AppProjectsProjectIdBoardRoute,
   AppProjectsProjectIdListRoute: AppProjectsProjectIdListRoute,
+  AppProjectsProjectIdSnippetsRoute: AppProjectsProjectIdSnippetsRoute,
+  AppProjectsProjectIdWikiRoute: AppProjectsProjectIdWikiRoute,
   AppProjectsProjectIdIndexRoute: AppProjectsProjectIdIndexRoute,
 }
 
