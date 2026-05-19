@@ -3,7 +3,15 @@ import { PageHeader } from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
 import { mockProjects, mockActivity, mockTasks, priorityMeta, statusMeta } from "@/lib/mock-data";
 import { Pill, Avatar } from "@/components/app/StatusBadge";
-import { Plus, ArrowUpRight, TrendingUp, AlertTriangle, CheckCircle2, Filter, Calendar as CalIcon } from "lucide-react";
+import {
+  Plus,
+  ArrowUpRight,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Filter,
+  Calendar as CalIcon,
+} from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Workspace — DevCollab" }] }),
@@ -19,8 +27,12 @@ function WorkspaceDashboard() {
         description="Tuesday, June 11 · Good morning, Mira"
         actions={
           <>
-            <Button variant="outline" size="sm">Import</Button>
-            <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Create project</Button>
+            <Button variant="outline" size="sm">
+              Import
+            </Button>
+            <Button size="sm" className="gap-1.5">
+              <Plus className="h-4 w-4" /> Create project
+            </Button>
           </>
         }
       />
@@ -38,9 +50,27 @@ function WorkspaceDashboard() {
 
 function SummaryCards() {
   const cards = [
-    { label: "Active projects", value: 4, hint: "+1 this week", icon: TrendingUp, tone: "oklch(0.58 0.15 155)" },
-    { label: "Open tasks", value: 42, hint: "8 high priority", icon: CheckCircle2, tone: "oklch(0.62 0.14 240)" },
-    { label: "Overdue", value: 3, hint: "across 2 projects", icon: AlertTriangle, tone: "oklch(0.6 0.22 27)" },
+    {
+      label: "Active projects",
+      value: 4,
+      hint: "+1 this week",
+      icon: TrendingUp,
+      tone: "oklch(0.58 0.15 155)",
+    },
+    {
+      label: "Open tasks",
+      value: 42,
+      hint: "8 high priority",
+      icon: CheckCircle2,
+      tone: "oklch(0.62 0.14 240)",
+    },
+    {
+      label: "Overdue",
+      value: 3,
+      hint: "across 2 projects",
+      icon: AlertTriangle,
+      tone: "oklch(0.6 0.22 27)",
+    },
   ];
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -49,10 +79,18 @@ function SummaryCards() {
           <div className="flex items-start justify-between">
             <div>
               <div className="text-sm text-muted-foreground">{c.label}</div>
-              <div className="mt-1 font-display text-3xl font-semibold tracking-tight">{c.value}</div>
+              <div className="mt-1 font-display text-3xl font-semibold tracking-tight">
+                {c.value}
+              </div>
               <div className="mt-1 text-xs text-muted-foreground">{c.hint}</div>
             </div>
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-md" style={{ background: `color-mix(in oklab, ${c.tone} 12%, transparent)`, color: c.tone }}>
+            <span
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md"
+              style={{
+                background: `color-mix(in oklab, ${c.tone} 12%, transparent)`,
+                color: c.tone,
+              }}
+            >
               <c.icon className="h-4 w-4" />
             </span>
           </div>
@@ -82,13 +120,21 @@ function ProjectsGrid() {
           <h2 className="font-display text-lg font-semibold">Projects</h2>
           <p className="text-sm text-muted-foreground">Pinned and active.</p>
         </div>
-        <Link to="/app/projects/platform" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/app/projects/platform"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
           View all <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {mockProjects.map((p) => (
-          <Link key={p.id} to="/app/projects/$projectId" params={{ projectId: p.id }} className="surface-card surface-card-hover group p-5">
+          <Link
+            key={p.id}
+            to="/app/projects/$projectId"
+            params={{ projectId: p.id }}
+            className="surface-card surface-card-hover group p-5"
+          >
             <div className="flex items-center gap-2.5">
               <span className="h-6 w-6 rounded" style={{ background: p.color }} />
               <span className="font-display font-semibold">{p.name}</span>
@@ -100,16 +146,26 @@ function ProjectsGrid() {
                 <span>{p.openTasks} open</span>
               </div>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full" style={{ width: `${p.progress}%`, background: p.color }} />
+                <div
+                  className="h-full rounded-full"
+                  style={{ width: `${p.progress}%`, background: p.color }}
+                />
               </div>
             </div>
             <div className="mt-4 flex items-center justify-between">
               <div className="flex -space-x-2">
                 {Array.from({ length: Math.min(4, p.members) }).map((_, i) => (
-                  <Avatar key={i} initials={"AB CD EF GH".split(" ")[i]} color={`oklch(0.65 0.14 ${(i + 1) * 60})`} size={22} />
+                  <Avatar
+                    key={i}
+                    initials={"AB CD EF GH".split(" ")[i]}
+                    color={`oklch(0.65 0.14 ${(i + 1) * 60})`}
+                    size={22}
+                  />
                 ))}
               </div>
-              <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">Open →</span>
+              <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary">
+                Open →
+              </span>
             </div>
           </Link>
         ))}
@@ -127,16 +183,37 @@ function RecentActivity() {
           <p className="text-xs text-muted-foreground">Across all projects</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="gap-1.5"><Filter className="h-3.5 w-3.5" /> Filter</Button>
-          <Button variant="ghost" size="sm" className="gap-1.5"><CalIcon className="h-3.5 w-3.5" /> Last 7 days</Button>
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            <Filter className="h-3.5 w-3.5" /> Filter
+          </Button>
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            <CalIcon className="h-3.5 w-3.5" /> Last 7 days
+          </Button>
         </div>
       </div>
       <ul className="divide-y divide-border">
         {mockActivity.map((a, i) => (
           <li key={i} className="flex items-start gap-3 py-3 text-sm">
-            <Avatar initials={a.who.split(" ").map(n => n[0]).join("")} color={`oklch(0.65 0.14 ${(i + 1) * 50})`} size={28} />
+            <Avatar
+              initials={a.who
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+              color={`oklch(0.65 0.14 ${(i + 1) * 50})`}
+              size={28}
+            />
             <div className="flex-1">
-              <div><span className="font-medium">{a.who}</span> <span className="text-muted-foreground">{a.action}</span> <span className="font-medium">{a.target}</span>{a.to ? <span className="text-muted-foreground"> → <span className="font-medium">{a.to}</span></span> : null}</div>
+              <div>
+                <span className="font-medium">{a.who}</span>{" "}
+                <span className="text-muted-foreground">{a.action}</span>{" "}
+                <span className="font-medium">{a.target}</span>
+                {a.to ? (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    → <span className="font-medium">{a.to}</span>
+                  </span>
+                ) : null}
+              </div>
               <div className="mt-0.5 text-xs text-muted-foreground">{a.when}</div>
             </div>
           </li>
@@ -155,17 +232,27 @@ function MyTasks() {
           <h2 className="font-display font-semibold">My tasks</h2>
           <p className="text-xs text-muted-foreground">Due this week</p>
         </div>
-        <Button size="sm" variant="ghost">View all</Button>
+        <Button size="sm" variant="ghost">
+          View all
+        </Button>
       </div>
       <ul className="space-y-2">
         {mine.map((t) => (
-          <li key={t.id} className="group rounded-md border border-border bg-card p-3 transition-colors hover:border-primary/40">
+          <li
+            key={t.id}
+            className="group rounded-md border border-border bg-card p-3 transition-colors hover:border-primary/40"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">{t.title}</div>
                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="font-mono">{t.id}</span>
-                  {t.due && <><span>·</span><span>{t.due}</span></>}
+                  {t.due && (
+                    <>
+                      <span>·</span>
+                      <span>{t.due}</span>
+                    </>
+                  )}
                 </div>
               </div>
               <Pill color={priorityMeta[t.priority].color}>{priorityMeta[t.priority].label}</Pill>

@@ -31,30 +31,53 @@ function LoginPage() {
     setTimeout(() => navigate({ to: "/app" }), 700);
   }
 
-  return <AuthShell title="Welcome back" sub="Log in to your DevCollab workspace.">
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
-      <OAuthRow />
-      <Divider />
-      <Field label="Email" name="email" type="email" placeholder="you@company.com" error={errors.email} onChange={() => setErrors(e => ({ ...e, email: undefined }))} />
-      <Field
-        label="Password"
-        name="password"
-        type="password"
-        error={errors.password}
-        onChange={() => setErrors(e => ({ ...e, password: undefined }))}
-        rightLabel={<a href="#" className="text-xs font-medium text-primary hover:underline">Forgot password?</a>}
-      />
-      <div className="flex items-center justify-between pt-2">
-        <Link to="/signup" className="text-sm text-muted-foreground hover:text-foreground">Create account</Link>
-        <Button type="submit" disabled={loading} className="min-w-[120px]">
-          {loading ? <Spinner /> : "Log in"}
-        </Button>
-      </div>
-    </form>
-  </AuthShell>;
+  return (
+    <AuthShell title="Welcome back" sub="Log in to your DevCollab workspace.">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+        <OAuthRow />
+        <Divider />
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="you@company.com"
+          error={errors.email}
+          onChange={() => setErrors((e) => ({ ...e, email: undefined }))}
+        />
+        <Field
+          label="Password"
+          name="password"
+          type="password"
+          error={errors.password}
+          onChange={() => setErrors((e) => ({ ...e, password: undefined }))}
+          rightLabel={
+            <a href="#" className="text-xs font-medium text-primary hover:underline">
+              Forgot password?
+            </a>
+          }
+        />
+        <div className="flex items-center justify-between pt-2">
+          <Link to="/signup" className="text-sm text-muted-foreground hover:text-foreground">
+            Create account
+          </Link>
+          <Button type="submit" disabled={loading} className="min-w-[120px]">
+            {loading ? <Spinner /> : "Log in"}
+          </Button>
+        </div>
+      </form>
+    </AuthShell>
+  );
 }
 
-export function AuthShell({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+export function AuthShell({
+  title,
+  sub,
+  children,
+}: {
+  title: string;
+  sub: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       <div className="absolute inset-0 bg-grid bg-grid-fade" aria-hidden />
@@ -68,7 +91,15 @@ export function AuthShell({ title, sub, children }: { title: string; sub: string
             <div className="mt-6">{children}</div>
           </div>
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            By continuing you agree to our <a href="#" className="underline">Terms</a> and <a href="#" className="underline">Privacy</a>.
+            By continuing you agree to our{" "}
+            <a href="#" className="underline">
+              Terms
+            </a>{" "}
+            and{" "}
+            <a href="#" className="underline">
+              Privacy
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -99,15 +130,28 @@ export function Divider() {
 }
 
 export function Field({
-  label, name, type = "text", placeholder, error, rightLabel, onChange,
+  label,
+  name,
+  type = "text",
+  placeholder,
+  error,
+  rightLabel,
+  onChange,
 }: {
-  label: string; name: string; type?: string; placeholder?: string; error?: string;
-  rightLabel?: React.ReactNode; onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  error?: string;
+  rightLabel?: React.ReactNode;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <label htmlFor={name} className="text-sm font-medium">{label}</label>
+        <label htmlFor={name} className="text-sm font-medium">
+          {label}
+        </label>
         {rightLabel}
       </div>
       <input
@@ -131,18 +175,30 @@ export function Spinner() {
   return (
     <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
-      <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M22 12a10 10 0 0 1-10 10"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function GoogleIcon() {
   return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 11.6v3.4h4.7c-.2 1.2-1.5 3.4-4.7 3.4-2.8 0-5.1-2.3-5.1-5.2S9.2 8 12 8c1.6 0 2.7.7 3.3 1.2l2.3-2.2C16.2 5.7 14.3 5 12 5c-4.4 0-8 3.6-8 8s3.6 8 8 8c4.6 0 7.7-3.2 7.7-7.8 0-.5-.1-.9-.1-1.6H12z"/></svg>
+    <svg className="h-4 w-4" viewBox="0 0 24 24">
+      <path
+        fill="#EA4335"
+        d="M12 11.6v3.4h4.7c-.2 1.2-1.5 3.4-4.7 3.4-2.8 0-5.1-2.3-5.1-5.2S9.2 8 12 8c1.6 0 2.7.7 3.3 1.2l2.3-2.2C16.2 5.7 14.3 5 12 5c-4.4 0-8 3.6-8 8s3.6 8 8 8c4.6 0 7.7-3.2 7.7-7.8 0-.5-.1-.9-.1-1.6H12z"
+      />
+    </svg>
   );
 }
 function GithubIcon() {
   return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2.2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.3 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2 1-.3 2-.4 3-.4s2 .1 3 .4c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.3 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.5-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z"/></svg>
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 .5C5.6.5.5 5.6.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2.2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.3 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2 1-.3 2-.4 3-.4s2 .1 3 .4c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.3 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.5-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.6 18.4.5 12 .5z" />
+    </svg>
   );
 }

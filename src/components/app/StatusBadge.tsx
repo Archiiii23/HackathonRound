@@ -13,7 +13,13 @@ export function Pill({ color, children }: { color: string; children: React.React
   );
 }
 
-export function LabelChip({ tone, children }: { tone: "green" | "blue" | "yellow" | "red" | "gray"; children: React.ReactNode }) {
+export function LabelChip({
+  tone,
+  children,
+}: {
+  tone: "green" | "blue" | "yellow" | "red" | "gray";
+  children: React.ReactNode;
+}) {
   const map: Record<string, string> = {
     green: "oklch(0.58 0.15 155)",
     blue: "oklch(0.62 0.14 240)",
@@ -35,7 +41,15 @@ export function LabelChip({ tone, children }: { tone: "green" | "blue" | "yellow
   );
 }
 
-export function Avatar({ initials, color, size = 24 }: { initials: string; color: string; size?: number }) {
+export function Avatar({
+  initials,
+  color,
+  size = 24,
+}: {
+  initials: string;
+  color: string;
+  size?: number;
+}) {
   return (
     <span
       className="inline-flex items-center justify-center rounded-full text-[10px] font-semibold text-white ring-2 ring-background"

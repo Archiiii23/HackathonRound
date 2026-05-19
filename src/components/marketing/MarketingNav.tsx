@@ -9,10 +9,18 @@ export function MarketingNav() {
         <div className="flex items-center gap-8">
           <Logo />
           <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <Link to="/" className="transition-colors hover:text-foreground">Product</Link>
-            <Link to="/pricing" className="transition-colors hover:text-foreground">Pricing</Link>
-            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
-            <a href="#" className="transition-colors hover:text-foreground">Docs</a>
+            <Link to="/" className="transition-colors hover:text-foreground">
+              Product
+            </Link>
+            <Link to="/pricing" className="transition-colors hover:text-foreground">
+              Pricing
+            </Link>
+            <a href="#features" className="transition-colors hover:text-foreground">
+              Features
+            </a>
+            <a href="#" className="transition-colors hover:text-foreground">
+              Docs
+            </a>
           </nav>
         </div>
         <div className="flex items-center gap-2">

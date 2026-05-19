@@ -15,25 +15,61 @@ export function MarketingFooter() {
             <div>
               <div className="font-medium text-foreground">Product</div>
               <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Features</a></li>
-                <li><a href="/pricing" className="hover:text-foreground">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground">Changelog</a></li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a href="/pricing" className="hover:text-foreground">
+                    Pricing
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Changelog
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <div className="font-medium text-foreground">Company</div>
               <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">About</a></li>
-                <li><a href="#" className="hover:text-foreground">Careers</a></li>
-                <li><a href="#" className="hover:text-foreground">Contact</a></li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Contact
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <div className="font-medium text-foreground">Legal</div>
               <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground">Terms</a></li>
-                <li><a href="#" className="hover:text-foreground">Security</a></li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Privacy
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Terms
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground">
+                    Security
+                  </a>
+                </li>
               </ul>
             </div>
           </div>

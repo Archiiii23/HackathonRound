@@ -8,7 +8,11 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — DevCollab" },
-      { name: "description", content: "Simple, predictable pricing for teams of every size. Start free, upgrade when you're ready." },
+      {
+        name: "description",
+        content:
+          "Simple, predictable pricing for teams of every size. Start free, upgrade when you're ready.",
+      },
     ],
   }),
   component: PricingPage,
@@ -19,7 +23,12 @@ const plans = [
     name: "Free",
     price: "$0",
     sub: "for small teams getting started",
-    features: ["Up to 5 teammates", "Unlimited tasks & wiki pages", "Basic AI (50 runs/mo)", "Community support"],
+    features: [
+      "Up to 5 teammates",
+      "Unlimited tasks & wiki pages",
+      "Basic AI (50 runs/mo)",
+      "Community support",
+    ],
     cta: "Start free",
     highlight: false,
   },
@@ -27,7 +36,13 @@ const plans = [
     name: "Pro",
     price: "$12",
     sub: "per user / month, billed yearly",
-    features: ["Unlimited members", "Unlimited AI runs", "Snippets + code review", "Roadmap & analytics", "Priority support"],
+    features: [
+      "Unlimited members",
+      "Unlimited AI runs",
+      "Snippets + code review",
+      "Roadmap & analytics",
+      "Priority support",
+    ],
     cta: "Start 14-day trial",
     highlight: true,
   },
@@ -35,7 +50,13 @@ const plans = [
     name: "Business",
     price: "$24",
     sub: "per user / month, billed yearly",
-    features: ["SSO + SCIM", "Audit logs & SOC 2 reports", "Custom roles & permissions", "Advanced AI policies", "Dedicated CSM"],
+    features: [
+      "SSO + SCIM",
+      "Audit logs & SOC 2 reports",
+      "Custom roles & permissions",
+      "Advanced AI policies",
+      "Dedicated CSM",
+    ],
     cta: "Contact sales",
     highlight: false,
   },
@@ -49,8 +70,12 @@ function PricingPage() {
         <div className="absolute inset-0 bg-grid bg-grid-fade" aria-hidden />
         <div className="relative mx-auto max-w-[1280px] px-6 py-20 text-center">
           <span className="text-xs font-medium uppercase tracking-wider text-primary">Pricing</span>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight md:text-5xl">Simple plans. No surprises.</h1>
-          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Start free. Upgrade when your team grows. Cancel anytime.</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight md:text-5xl">
+            Simple plans. No surprises.
+          </h1>
+          <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+            Start free. Upgrade when your team grows. Cancel anytime.
+          </p>
         </div>
       </section>
 
@@ -74,8 +99,12 @@ function PricingPage() {
                 )}
                 <div className="font-display text-lg font-semibold">{p.name}</div>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="font-display text-4xl font-semibold tracking-tight">{p.price}</span>
-                  {p.price !== "$0" && <span className="text-sm text-muted-foreground">/ user / mo</span>}
+                  <span className="font-display text-4xl font-semibold tracking-tight">
+                    {p.price}
+                  </span>
+                  {p.price !== "$0" && (
+                    <span className="text-sm text-muted-foreground">/ user / mo</span>
+                  )}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">{p.sub}</div>
                 <ul className="mt-6 space-y-2.5 text-sm">
@@ -87,7 +116,9 @@ function PricingPage() {
                 </ul>
                 <div className="mt-8 flex justify-end">
                   <Button asChild variant={p.highlight ? "default" : "outline"} className="gap-1.5">
-                    <Link to="/signup">{p.cta} <ArrowRight className="h-4 w-4" /></Link>
+                    <Link to="/signup">
+                      {p.cta} <ArrowRight className="h-4 w-4" />
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -98,10 +129,19 @@ function PricingPage() {
             <h3 className="font-display text-xl font-semibold tracking-tight">Frequently asked</h3>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {[
-                ["Can I switch plans later?", "Yes. Upgrade or downgrade anytime — we prorate by the day."],
-                ["Do you offer a non-profit discount?", "We offer 50% off for verified non-profits and OSS maintainers."],
+                [
+                  "Can I switch plans later?",
+                  "Yes. Upgrade or downgrade anytime — we prorate by the day.",
+                ],
+                [
+                  "Do you offer a non-profit discount?",
+                  "We offer 50% off for verified non-profits and OSS maintainers.",
+                ],
                 ["Is there a free trial of Pro?", "Yes — 14 days, no credit card required."],
-                ["Where is data hosted?", "US and EU regions, with full data residency on Business."],
+                [
+                  "Where is data hosted?",
+                  "US and EU regions, with full data residency on Business.",
+                ],
               ].map(([q, a]) => (
                 <div key={q} className="surface-card p-5">
                   <div className="font-medium">{q}</div>

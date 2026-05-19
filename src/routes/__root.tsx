@@ -73,10 +73,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "DevCollab — AI-powered developer collaboration" },
-      { name: "description", content: "Plan, ship, and document together. DevCollab brings tasks, wiki, snippets, and AI into one fast workspace for engineering teams." },
+      {
+        name: "description",
+        content:
+          "Plan, ship, and document together. DevCollab brings tasks, wiki, snippets, and AI into one fast workspace for engineering teams.",
+      },
       { name: "author", content: "DevCollab" },
       { property: "og:title", content: "DevCollab — AI-powered developer collaboration" },
-      { property: "og:description", content: "Plan, ship, and document together. One fast workspace for engineering teams." },
+      {
+        property: "og:description",
+        content: "Plan, ship, and document together. One fast workspace for engineering teams.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

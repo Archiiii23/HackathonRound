@@ -1,7 +1,11 @@
 import * as React from "react";
 
 export function PageHeader({
-  title, description, actions, children, eyebrow,
+  title,
+  description,
+  actions,
+  children,
+  eyebrow,
 }: {
   title: React.ReactNode;
   description?: React.ReactNode;
@@ -12,9 +16,13 @@ export function PageHeader({
   return (
     <div className="border-b border-border bg-background">
       <div className="mx-auto max-w-[1280px] px-6">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex min-h-16 flex-col justify-center gap-4 py-4 md:flex-row md:items-center md:justify-between md:py-0">
           <div className="min-w-0">
-            {eyebrow && <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{eyebrow}</div>}
+            {eyebrow && (
+              <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {eyebrow}
+              </div>
+            )}
             <h1 className="truncate font-display text-xl font-semibold tracking-tight">{title}</h1>
             {description && <p className="truncate text-sm text-muted-foreground">{description}</p>}
           </div>
