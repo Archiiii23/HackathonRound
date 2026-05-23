@@ -1,7 +1,9 @@
+import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { Button } from "@/components/ui/button";
+import { LegalDialog, type LegalDocKey } from "@/components/app/AppPanels";
 import { Check, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
@@ -18,7 +20,18 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-const plans = [
+type PlanCta =
+  | { kind: "signup"; label: string }
+  | { kind: "mailto"; label: string; subject: string };
+
+const plans: {
+  name: string;
+  price: string;
+  sub: string;
+  features: string[];
+  cta: PlanCta;
+  highlight: boolean;
+}[] = [
   {
     name: "Free",
     price: "$0",
@@ -29,7 +42,7 @@ const plans = [
       "Basic AI (50 runs/mo)",
       "Community support",
     ],
-    cta: "Start free",
+    cta: { kind: "signup", label: "Start free" },
     highlight: false,
   },
   {
@@ -43,7 +56,7 @@ const plans = [
       "Roadmap & analytics",
       "Priority support",
     ],
-    cta: "Start 14-day trial",
+    cta: { kind: "signup", label: "Start 14-day trial" },
     highlight: true,
   },
   {
@@ -57,12 +70,13 @@ const plans = [
       "Advanced AI policies",
       "Dedicated CSM",
     ],
-    cta: "Contact sales",
+    cta: { kind: "mailto", label: "Contact sales", subject: "DevCollab Business plan" },
     highlight: false,
   },
 ];
 
 function PricingPage() {
+  const [doc, setDoc] = React.useState<LegalDocKey | null>(null);
   return (
     <div className="min-h-screen bg-background">
       <MarketingNav />
@@ -115,18 +129,48 @@ function PricingPage() {
                   ))}
                 </ul>
                 <div className="mt-8 flex justify-end">
-                  <Button asChild variant={p.highlight ? "default" : "outline"} className="gap-1.5">
-                    <Link to="/signup">
-                      {p.cta} <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
+                  {p.cta.kind === "signup" ? (
+                    <Button
+                      asChild
+                      variant={p.highlight ? "default" : "outline"}
+                      className="gap-1.5"
+                    >
+                      <Link to="/signup">
+                        {p.cta.label} <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      asChild
+                      variant={p.highlight ? "default" : "outline"}
+                      className="gap-1.5"
+                    >
+                      <a
+                        href={`mailto:sales@devcollab.app?subject=${encodeURIComponent(
+                          p.cta.subject,
+                        )}`}
+                      >
+                        {p.cta.label} <ArrowRight className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
 
           <div className="mt-16">
-            <h3 className="font-display text-xl font-semibold tracking-tight">Frequently asked</h3>
+            <div className="flex items-end justify-between">
+              <h3 className="font-display text-xl font-semibold tracking-tight">
+                Frequently asked
+              </h3>
+              <button
+                onClick={() => setDoc("security")}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                View security details →
+              </button>
+            </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {[
                 [
@@ -154,6 +198,7 @@ function PricingPage() {
       </section>
 
       <MarketingFooter />
+      <LegalDialog doc={doc} onOpenChange={(v) => !v && setDoc(null)} />
     </div>
   );
 }

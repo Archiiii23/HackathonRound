@@ -1,21 +1,30 @@
-import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { mockTasks, priorityMeta, statusMeta } from "@/lib/mock-data";
 import { Pill, Avatar, LabelChip } from "@/components/app/StatusBadge";
+import { tasksQuery } from "@/lib/queries";
+import { api, PRIORITY_META, STATUS_META, formatRelative } from "@/lib/api";
 import { Sparkles, RefreshCcw, MessageSquare, Calendar as CalIcon } from "lucide-react";
 
 export const Route = createFileRoute("/app/projects/$projectId/")({
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(tasksQuery(params.projectId));
+  },
   component: Overview,
 });
 
 function Overview() {
-  const open = mockTasks.filter((t) => t.status !== "done").length;
-  const done = mockTasks.filter((t) => t.status === "done").length;
-  const review = mockTasks.filter((t) => t.status === "review").length;
+  const { projectId } = Route.useParams();
+  const { data } = useSuspenseQuery(tasksQuery(projectId));
+  const tasks = data.tasks;
+  const open = tasks.filter((t) => t.status !== "done").length;
+  const done = tasks.filter((t) => t.status === "done").length;
+  const review = tasks.filter((t) => t.status === "review").length;
 
   return (
     <div className="mx-auto max-w-[1280px] px-6 py-8 space-y-8">
-      <AiSummaryCard />
+      <AiSummaryCard projectId={projectId} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Metric label="Open" value={open} sub="across all statuses" tone="oklch(0.62 0.14 240)" />
@@ -36,7 +45,36 @@ function Overview() {
   );
 }
 
-function AiSummaryCard() {
+function AiSummaryCard({ projectId }: { projectId: string }) {
+  const { data } = useSuspenseQuery(tasksQuery(projectId));
+  const tasks = data.tasks;
+  const [summary, setSummary] = React.useState<string | null>(null);
+  const [generating, setGenerating] = React.useState(false);
+  const [provider, setProvider] = React.useState<string | null>(null);
+
+  async function run() {
+    setGenerating(true);
+    setSummary(null);
+    try {
+      const context = tasks
+        .map((t) => `- [${t.status}] ${t.title} (${t.priority})`)
+        .slice(0, 12)
+        .join("\n");
+      const res = await api.ai({
+        kind: "summary",
+        platform: "gemini",
+        prompt: `Summarize the current state of project ${projectId} for an engineering standup.`,
+        context,
+      });
+      setSummary(res.output);
+      setProvider(res.provider);
+    } catch (err) {
+      setSummary(`Could not run AI summary: ${(err as Error).message}`);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   return (
     <section className="relative overflow-hidden surface-card p-6">
       <div
@@ -48,35 +86,36 @@ function AiSummaryCard() {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
             <Sparkles className="h-4 w-4" />
           </span>
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2">
               <h3 className="font-display font-semibold">AI summary</h3>
-              <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                updated 2m ago
-              </span>
+              {provider && (
+                <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                  {provider === "openai" ? "OpenAI" : "Local fallback"}
+                </span>
+              )}
             </div>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed">
-              <span className="font-medium">3 PRs</span> are ready for review, with{" "}
-              <span className="font-medium">2 blockers</span> on the Okta sandbox. The drag-and-drop
-              refactor is on track for EOD; the audit log endpoint needs a spec review before
-              implementation.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span>Sources:</span>
-              <span className="rounded border border-border bg-card px-1.5 py-0.5 font-mono">
-                #standup
-              </span>
-              <span className="rounded border border-border bg-card px-1.5 py-0.5 font-mono">
-                PR-184
-              </span>
-              <span className="rounded border border-border bg-card px-1.5 py-0.5 font-mono">
-                T-1003
-              </span>
-            </div>
+            {summary ? (
+              <pre className="mt-2 max-w-2xl whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground">
+                {summary}
+              </pre>
+            ) : (
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Generate a brief snapshot of where this project stands — tasks in flight, what's
+                blocked, and what shipped.
+              </p>
+            )}
           </div>
         </div>
-        <Button variant="outline" size="sm" className="gap-1.5 self-start">
-          <RefreshCcw className="h-3.5 w-3.5" /> Regenerate
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 self-start"
+          onClick={run}
+          disabled={generating}
+        >
+          <RefreshCcw className={`h-3.5 w-3.5 ${generating ? "animate-spin" : ""}`} />
+          {summary ? "Regenerate" : "Generate"}
         </Button>
       </div>
     </section>
@@ -107,37 +146,65 @@ function Metric({
 }
 
 function RecentTasks() {
+  const { projectId } = Route.useParams();
+  const { data } = useSuspenseQuery(tasksQuery(projectId));
   return (
     <div className="surface-card lg:col-span-2 p-5">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-display font-semibold">Recent tasks</h3>
-        <Button size="sm" variant="ghost">
-          View board
-        </Button>
+        <Link to="/app/projects/$projectId/board" params={{ projectId }}>
+          <Button size="sm" variant="ghost">
+            View board
+          </Button>
+        </Link>
       </div>
       <ul className="divide-y divide-border">
-        {mockTasks.slice(0, 6).map((t) => (
-          <li key={t.id} className="flex items-center gap-3 py-3">
-            <Pill color={statusMeta[t.status].color}>{statusMeta[t.status].label}</Pill>
-            <span className="flex-1 truncate text-sm font-medium">{t.title}</span>
-            <div className="hidden gap-1 md:flex">
-              {t.labels.map((l) => (
-                <LabelChip key={l.name} tone={l.tone}>
-                  {l.name}
-                </LabelChip>
-              ))}
-            </div>
-            <Pill color={priorityMeta[t.priority].color}>{priorityMeta[t.priority].label}</Pill>
-            <Avatar initials={t.assignee.initials} color={t.assignee.color} />
+        {data.tasks.slice(0, 6).map((t) => (
+          <li key={t.id}>
+            <Link
+              to="/app/projects/$projectId/list"
+              params={{ projectId }}
+              className="group -mx-2 flex items-center gap-3 rounded-md px-2 py-3 transition-colors hover:bg-muted/50"
+            >
+              <Pill color={STATUS_META[t.status].color}>{STATUS_META[t.status].label}</Pill>
+              <span className="flex-1 truncate text-sm font-medium">{t.title}</span>
+              <div className="hidden gap-1 md:flex">
+                {t.labels.map((l) => (
+                  <LabelChip key={l.name} tone={l.tone}>
+                    {l.name}
+                  </LabelChip>
+                ))}
+              </div>
+              <Pill color={PRIORITY_META[t.priority].color}>{PRIORITY_META[t.priority].label}</Pill>
+              {t.assignee && (
+                <Avatar initials={t.assignee.initials} color={t.assignee.avatarColor} />
+              )}
+            </Link>
           </li>
         ))}
+        {data.tasks.length === 0 && (
+          <li className="py-6 text-center text-xs text-muted-foreground">
+            No tasks yet —{" "}
+            <Link
+              to="/app/projects/$projectId/board"
+              params={{ projectId }}
+              search={{ new: "1" } as never}
+              className="font-medium text-primary hover:underline"
+            >
+              add the first one
+            </Link>
+            .
+          </li>
+        )}
       </ul>
     </div>
   );
 }
 
 function Side() {
-  const upcoming = mockTasks.filter((t) => t.due).slice(0, 4);
+  const { projectId } = Route.useParams();
+  const { data } = useSuspenseQuery(tasksQuery(projectId));
+  const upcoming = data.tasks.filter((t) => t.due).slice(0, 4);
   return (
     <div className="space-y-4">
       <div className="surface-card p-5">
@@ -154,24 +221,34 @@ function Side() {
               </div>
             </li>
           ))}
+          {upcoming.length === 0 && (
+            <li className="py-3 text-xs text-muted-foreground">No upcoming due dates.</li>
+          )}
         </ul>
       </div>
       <div className="surface-card p-5">
-        <h3 className="font-display font-semibold">Discussion</h3>
+        <h3 className="font-display font-semibold">Latest updates</h3>
         <ul className="mt-3 space-y-3 text-sm">
-          {mockTasks.slice(0, 3).map((t) => (
+          {data.tasks.slice(0, 3).map((t) => (
             <li key={t.id} className="flex items-center gap-3">
-              <Avatar initials={t.assignee.initials} color={t.assignee.color} />
+              {t.assignee && (
+                <Avatar initials={t.assignee.initials} color={t.assignee.avatarColor} />
+              )}
               <div className="min-w-0 flex-1 truncate text-muted-foreground">
-                <span className="font-medium text-foreground">{t.assignee.name}</span> commented on{" "}
-                <span className="font-medium text-foreground">{t.title}</span>
+                <span className="font-medium text-foreground">
+                  {t.assignee?.name ?? "Unassigned"}
+                </span>{" "}
+                · <span className="font-medium text-foreground">{t.title}</span>
               </div>
               <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                 <MessageSquare className="h-3 w-3" />
-                {Math.max(1, t.comments)}
+                {formatRelative(t.updatedAt)}
               </span>
             </li>
           ))}
+          {data.tasks.length === 0 && (
+            <li className="py-3 text-xs text-muted-foreground">Nothing here yet.</li>
+          )}
         </ul>
       </div>
     </div>

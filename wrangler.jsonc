@@ -1,14 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tanstack-start-app",
+  "name": "devcollab-frontend",
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "src/server.ts",
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "dev-db",
-      "database_id": "dev-db"
-    }
-  ]
+  "vars": {
+    // Override at deploy time with the real backend URL.
+    // Example: "https://devcollab-backend.<account>.workers.dev"
+    "PUBLIC_API_URL": "http://localhost:8787",
+  },
 }

@@ -1,6 +1,67 @@
+import * as React from "react";
+import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/brand/Logo";
+import { LegalDialog, type LegalDocKey } from "@/components/app/AppPanels";
+
+type FooterLink =
+  | { kind: "to"; href: string; label: string }
+  | { kind: "anchor"; href: string; label: string }
+  | { kind: "doc"; doc: LegalDocKey; label: string }
+  | { kind: "external"; href: string; label: string };
+
+const PRODUCT: FooterLink[] = [
+  { kind: "anchor", href: "/#features", label: "Features" },
+  { kind: "to", href: "/pricing", label: "Pricing" },
+  { kind: "doc", doc: "changelog", label: "Changelog" },
+];
+
+const COMPANY: FooterLink[] = [
+  { kind: "doc", doc: "about", label: "About" },
+  { kind: "doc", doc: "careers", label: "Careers" },
+  { kind: "doc", doc: "contact", label: "Contact" },
+];
+
+const LEGAL: FooterLink[] = [
+  { kind: "doc", doc: "privacy", label: "Privacy" },
+  { kind: "doc", doc: "terms", label: "Terms" },
+  { kind: "doc", doc: "security", label: "Security" },
+];
 
 export function MarketingFooter() {
+  const [doc, setDoc] = React.useState<LegalDocKey | null>(null);
+
+  function renderLink(l: FooterLink) {
+    if (l.kind === "to") {
+      return (
+        <Link to={l.href} className="hover:text-foreground">
+          {l.label}
+        </Link>
+      );
+    }
+    if (l.kind === "anchor") {
+      return (
+        <a href={l.href} className="hover:text-foreground">
+          {l.label}
+        </a>
+      );
+    }
+    if (l.kind === "external") {
+      return (
+        <a href={l.href} target="_blank" rel="noreferrer" className="hover:text-foreground">
+          {l.label}
+        </a>
+      );
+    }
+    return (
+      <button
+        onClick={() => setDoc(l.doc)}
+        className="text-left transition-colors hover:text-foreground"
+      >
+        {l.label}
+      </button>
+    );
+  }
+
   return (
     <footer className="border-t border-border/60 bg-muted/30">
       <div className="mx-auto max-w-[1280px] px-6 py-10">
@@ -12,66 +73,9 @@ export function MarketingFooter() {
             </p>
           </div>
           <div className="grid grid-cols-3 gap-8 text-sm">
-            <div>
-              <div className="font-medium text-foreground">Product</div>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a href="/pricing" className="hover:text-foreground">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Changelog
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <div className="font-medium text-foreground">Company</div>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    About
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <div className="font-medium text-foreground">Legal</div>
-              <ul className="mt-3 space-y-2 text-muted-foreground">
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Terms
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-foreground">
-                    Security
-                  </a>
-                </li>
-              </ul>
-            </div>
+            <FooterColumn title="Product" items={PRODUCT} render={renderLink} />
+            <FooterColumn title="Company" items={COMPANY} render={renderLink} />
+            <FooterColumn title="Legal" items={LEGAL} render={renderLink} />
           </div>
         </div>
         <div className="mt-10 flex flex-col gap-2 border-t border-border/60 pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
@@ -79,6 +83,28 @@ export function MarketingFooter() {
           <span className="font-mono">v1.0.0 · all systems normal</span>
         </div>
       </div>
+      <LegalDialog doc={doc} onOpenChange={(v) => !v && setDoc(null)} />
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  items,
+  render,
+}: {
+  title: string;
+  items: FooterLink[];
+  render: (l: FooterLink) => React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="font-medium text-foreground">{title}</div>
+      <ul className="mt-3 space-y-2 text-muted-foreground">
+        {items.map((i) => (
+          <li key={i.label}>{render(i)}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
