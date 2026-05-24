@@ -26,9 +26,11 @@ Built with a modern, high-performance edge-ready stack:
 For detailed setup instructions, please refer to [INSTALL.md](../INSTALL.md).
 
 ### 1. Prerequisites
+
 Ensure you have Bun or Node.js installed.
 
 ### 2. Backend Setup
+
 ```bash
 cd backend
 bun install
@@ -37,6 +39,7 @@ bun run dev
 ```
 
 ### 3. Frontend Setup
+
 ```bash
 cd HackathonRound
 bun install
@@ -44,9 +47,11 @@ bun run dev
 ```
 
 ## 📝 Demo Flow
+
 1. **Sign In**: Access your workspace.
 2. **Collaborate**: Use the live Board and Wiki.
 3. **AI Assist**: Generate tasks and summaries directly in the dashboard.
 
 ## 📜 License
+
 TBD

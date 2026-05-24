@@ -54,8 +54,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --shadow-soft:
-    0 1px 2px 0 oklch(0.18 0.02 160 / 0.05), 0 1px 3px 0 oklch(0.18 0.02 160 / 0.04);
+  --shadow-soft: 0 1px 2px 0 oklch(0.18 0.02 160 / 0.05), 0 1px 3px 0 oklch(0.18 0.02 160 / 0.04);
   --shadow-elevated:
     0 8px 32px -12px oklch(0.18 0.02 160 / 0.16), 0 2px 8px -2px oklch(0.18 0.02 160 / 0.06);
   --shadow-floating:
@@ -422,15 +421,14 @@
     inset: -25%;
     filter: blur(80px);
     opacity: 0.55;
-    background:
-      conic-gradient(
-        from 180deg at 50% 50%,
-        oklch(0.58 0.15 155 / 0.5) 0deg,
-        oklch(0.62 0.14 240 / 0.45) 90deg,
-        oklch(0.78 0.14 80 / 0.4) 180deg,
-        oklch(0.65 0.16 320 / 0.45) 270deg,
-        oklch(0.58 0.15 155 / 0.5) 360deg
-      );
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      oklch(0.58 0.15 155 / 0.5) 0deg,
+      oklch(0.62 0.14 240 / 0.45) 90deg,
+      oklch(0.78 0.14 80 / 0.4) 180deg,
+      oklch(0.65 0.16 320 / 0.45) 270deg,
+      oklch(0.58 0.15 155 / 0.5) 360deg
+    );
     animation: var(--animate-aurora);
   }
   .dark .aurora {
