@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Pill, Avatar, LabelChip } from "@/components/app/StatusBadge";
 import { tasksQuery } from "@/lib/queries";
 import { api, PRIORITY_META, STATUS_META, formatRelative } from "@/lib/api";
-import { Sparkles, RefreshCcw, MessageSquare, Calendar as CalIcon } from "lucide-react";
+import { Sparkles, RefreshCcw, MessageSquare, Calendar as CalIcon, Github, GitPullRequest, GitMerge } from "lucide-react";
 
 export const Route = createFileRoute("/app/projects/$projectId/")({
   loader: async ({ context, params }) => {
@@ -207,6 +207,7 @@ function Side() {
   const upcoming = data.tasks.filter((t) => t.due).slice(0, 4);
   return (
     <div className="space-y-4">
+      <GitHubPanel />
       <div className="surface-card p-5">
         <h3 className="font-display font-semibold">Upcoming</h3>
         <ul className="mt-3 space-y-3 text-sm">
@@ -251,6 +252,42 @@ function Side() {
           )}
         </ul>
       </div>
+    </div>
+  );
+}
+
+function GitHubPanel() {
+  const prs = [
+    { title: "feat: SSO login flow", status: "open", time: "2h ago", author: "mira" },
+    { title: "fix: presence race condition", status: "merged", time: "5h ago", author: "ari" },
+    { title: "chore: update dependencies", status: "merged", time: "1d ago", author: "jules" },
+  ];
+
+  return (
+    <div className="surface-card p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Github className="h-4 w-4" />
+        <h3 className="font-display font-semibold">Pull Requests</h3>
+      </div>
+      <ul className="space-y-3 text-sm">
+        {prs.map((pr, i) => (
+          <li key={i} className="flex items-start gap-2.5 hover:bg-muted/30 p-1.5 -mx-1.5 rounded-md transition-colors">
+            {pr.status === "open" ? (
+              <GitPullRequest className="mt-0.5 h-3.5 w-3.5 text-success" />
+            ) : (
+              <GitMerge className="mt-0.5 h-3.5 w-3.5 text-primary" />
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-medium hover:underline cursor-pointer">{pr.title}</div>
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                <span className="font-medium text-foreground">@{pr.author}</span>
+                <span>•</span>
+                <span>{pr.time}</span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

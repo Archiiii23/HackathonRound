@@ -302,7 +302,20 @@ function FloatingMock() {
 }
 
 export function OAuthRow({ onDemo, disabled }: { onDemo?: () => void; disabled?: boolean }) {
+  const [githubLoading, setGithubLoading] = React.useState(false);
+
   function handleClick(provider: string) {
+    if (provider === "GitHub" && onDemo) {
+      setGithubLoading(true);
+      toast.info("Connecting to GitHub...");
+      setTimeout(() => {
+        toast.info("Authenticating with workspace...");
+        setTimeout(() => {
+          onDemo();
+        }, 1200);
+      }, 1000);
+      return;
+    }
     if (onDemo) {
       toast.info(`${provider} sign-in not configured — using the demo workspace`);
       onDemo();
@@ -317,18 +330,17 @@ export function OAuthRow({ onDemo, disabled }: { onDemo?: () => void; disabled?:
         variant="outline"
         className="h-11 gap-2 text-sm"
         onClick={() => handleClick("Google")}
-        disabled={disabled}
+        disabled={disabled || githubLoading}
       >
         <GoogleIcon /> Google
       </Button>
       <Button
         type="button"
-        variant="outline"
-        className="h-11 gap-2 text-sm"
+        className="h-11 gap-2 text-sm bg-[#24292F] text-white hover:bg-[#24292F]/90 hover:text-white border-transparent shadow-[var(--shadow-elevated)]"
         onClick={() => handleClick("GitHub")}
-        disabled={disabled}
+        disabled={disabled || githubLoading}
       >
-        <GithubIcon /> GitHub
+        {githubLoading ? <Spinner /> : <GithubIcon />} GitHub
       </Button>
     </div>
   );

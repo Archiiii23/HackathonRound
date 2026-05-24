@@ -19,6 +19,7 @@ import {
   Wand2,
   Layers,
   PlayCircle,
+  Github,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -274,10 +275,10 @@ function Features() {
       tone: "oklch(0.78 0.14 80)",
     },
     {
-      icon: GitBranch,
-      title: "Git-aware",
-      body: "Branches, PRs, and deploys appear on tasks automatically. No more context-switching.",
-      tone: "oklch(0.58 0.15 155)",
+      icon: Github,
+      title: "Native GitHub Sync",
+      body: "Bi-directional sync for Issues and Pull Requests. PRs and deploys appear on tasks automatically. No more context-switching.",
+      tone: "oklch(0.65 0.1 270)",
     },
     {
       icon: Lock,
