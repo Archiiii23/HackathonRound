@@ -27,6 +27,7 @@ import {
   Archive,
   Trash2,
   ExternalLink,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -253,6 +254,16 @@ function ProjectHeaderActions({
 
   return (
     <>
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        onClick={() => window.location.reload()}
+        title="Refresh page"
+      >
+        <RotateCcw className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">Refresh</span>
+      </Button>
       <Button
         variant="ghost"
         size="icon"

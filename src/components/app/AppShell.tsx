@@ -264,7 +264,7 @@ function Sidebar({
             label="Activity"
             icon={Activity}
             collapsed={collapsed}
-            onClick={onOpenNotifications}
+            onClick={() => window.location.reload()}
           />
           <button
             onClick={onOpenAiHub}
@@ -534,6 +534,16 @@ function TopBar({
         </button>
 
         <ThemeToggle className="hidden md:inline-flex" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+          onClick={() => window.location.reload()}
+          title="Refresh page"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
 
         <Button
           onClick={onOpenNotifications}

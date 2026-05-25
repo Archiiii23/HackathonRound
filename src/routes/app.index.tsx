@@ -23,6 +23,7 @@ import {
   Activity,
   Loader2,
   Zap,
+  RotateCcw,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -72,7 +73,8 @@ function WorkspaceDashboard() {
         description="Here's what's moving across your team today."
         actions={
           <>
-            <Button variant="outline" size="sm" onClick={() => location.reload()}>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => location.reload()}>
+              <RotateCcw className="h-3.5 w-3.5" />
               Refresh
             </Button>
             <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
