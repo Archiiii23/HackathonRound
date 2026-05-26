@@ -1009,6 +1009,8 @@ const aiSchema = z.object({
   platform: z.enum(["gemini", "claude", "gpt"]).optional(),
   prompt: z.string().min(1).max(8000),
   context: z.string().max(20_000).optional(),
+  workspaceId: z.string().optional(),
+  projectId: z.string().optional(),
 });
 
 app.post("/ai/run", async (c) => {

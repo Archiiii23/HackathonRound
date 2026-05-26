@@ -123,6 +123,8 @@ export interface AiResult {
   output: string;
   model: string;
   provider: "openai" | "mock";
+  toolCall?: { action: string; params: any };
+  performedAction?: string;
 }
 
 export class ApiError extends Error {
@@ -283,8 +285,14 @@ export const api = {
 
   search: (q: string) => request<SearchResults>(`/search?q=${encodeURIComponent(q)}`),
 
-  ai: (input: { kind: AiKind; platform?: AiPlatform; prompt: string; context?: string }) =>
-    request<AiResult>("/ai/run", { method: "POST", json: input }),
+  ai: (input: {
+    kind: AiKind;
+    platform?: AiPlatform;
+    prompt: string;
+    context?: string;
+    workspaceId?: string;
+    projectId?: string;
+  }) => request<AiResult>("/ai/run", { method: "POST", json: input }),
 };
 
 export const STATUS_META: Record<Status, { label: string; color: string }> = {

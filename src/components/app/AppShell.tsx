@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter, useRouterState, useMatches } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
@@ -104,13 +104,22 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         />
         <main className="flex-1 animate-[var(--animate-fade-in)]">{children}</main>
       </div>
+      {showAiHub && <AiHubWrapper onClose={() => setShowAiHub(false)} />}
 
-      {showAiHub && <AiHub onClose={() => setShowAiHub(false)} />}
       <NotificationsSheet open={showNotifications} onOpenChange={setShowNotifications} />
       <SettingsSheet open={showSettings} onOpenChange={setShowSettings} />
       <InviteDialog open={showInvite} onOpenChange={setShowInvite} />
     </div>
   );
+}
+
+function AiHubWrapper({ onClose }: { onClose: () => void }) {
+  const matches = useMatches();
+  // Find the match that has projectId in its params
+  const projectMatch = matches.find((m) => "projectId" in (m.params as any));
+  const projectId = (projectMatch?.params as any)?.projectId;
+
+  return <AiHub onClose={onClose} projectId={projectId} />;
 }
 
 function Sidebar({
@@ -726,12 +735,13 @@ const PLATFORMS: { id: AiPlatform; title: string; sub: string; tone: string }[] 
   },
 ];
 
-function AiHub({ onClose }: { onClose: () => void }) {
+function AiHub({ onClose, projectId }: { onClose: () => void; projectId?: string }) {
   const [platform, setPlatform] = React.useState<AiPlatform>("gemini");
   const [response, setResponse] = React.useState<AiResult | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [prompt, setPrompt] = React.useState("");
   const [history, setHistory] = React.useState<{ prompt: string; result: AiResult }[]>([]);
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -758,8 +768,12 @@ function AiHub({ onClose }: { onClose: () => void }) {
           db: "How do I structure Cloudflare D1 migrations and seed data?",
           chat: prompt,
         }[kind];
-      const result = await api.ai({ kind, platform, prompt: promptText });
+      const result = await api.ai({ kind, platform, prompt: promptText, projectId });
       setResponse(result);
+      if (result.performedAction) {
+        toast.success(`AI: ${result.performedAction}`);
+        queryClient.invalidateQueries();
+      }
       setHistory((h) => [{ prompt: promptText, result }, ...h].slice(0, 6));
     } catch (err) {
       setResponse({
