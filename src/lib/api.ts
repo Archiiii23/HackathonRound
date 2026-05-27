@@ -273,9 +273,14 @@ function apiBase(): string {
     }
   }
   if (typeof candidate !== "string" || candidate.length === 0) {
+    // In production (Vercel) the API is served from the same origin at /api.
+    // In dev (no VITE_API_URL set) fall back to a local Express server.
+    if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+      return "/api";
+    }
     return "http://localhost:8787";
   }
-  return candidate.replace(/\/+$/, "") || "http://localhost:8787";
+  return candidate.replace(/\/+$/, "") || "/api";
 }
 
 export const API_BASE = apiBase();
@@ -310,9 +315,9 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown } =
     body,
   });
   const text = await res.text();
-  const parsed = text
+  const parsed: { data?: T; error?: { message: string } } = text
     ? (JSON.parse(text) as { data?: T; error?: { message: string } })
-    : ({} as { data?: T });
+    : {};
   if (!res.ok) {
     throw new ApiError(
       res.status,
