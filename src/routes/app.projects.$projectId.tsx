@@ -123,8 +123,6 @@ function ProjectLayout() {
             projectName={project.name}
           />
         }
-        description={project.description || "No description yet."}
-        actions={<ProjectHeaderActions projectId={projectId} projectName={project.name} />}
       >
         <AnimatedTabs tabs={tabs} pathname={pathname} params={params} />
       </PageHeader>
