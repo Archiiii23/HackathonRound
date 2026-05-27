@@ -251,10 +251,31 @@ export class ApiError extends Error {
 }
 
 function apiBase(): string {
-  const fromEnv =
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-    (typeof process !== "undefined" && process.env?.VITE_API_URL);
-  return (fromEnv as string | undefined)?.replace(/\/+$/, "") ?? "http://localhost:8787";
+  // Read VITE_API_URL from whichever env object exists. Some bundlers / SSR
+  // shims replace `import.meta.env` or `process.env` with non-plain objects
+  // (Proxies, getters, etc.), so we defensively coerce and validate that the
+  // resulting value is actually a non-empty string before calling .replace().
+  let candidate: unknown;
+  try {
+    if (typeof import.meta !== "undefined" && import.meta && (import.meta as ImportMeta).env) {
+      candidate = (import.meta as ImportMeta).env.VITE_API_URL;
+    }
+  } catch {
+    // ignore — import.meta may not be available in all contexts
+  }
+  if (typeof candidate !== "string" || candidate.length === 0) {
+    try {
+      if (typeof process !== "undefined" && process && process.env) {
+        candidate = process.env.VITE_API_URL;
+      }
+    } catch {
+      // ignore — process may not be available in the browser
+    }
+  }
+  if (typeof candidate !== "string" || candidate.length === 0) {
+    return "http://localhost:8787";
+  }
+  return candidate.replace(/\/+$/, "") || "http://localhost:8787";
 }
 
 export const API_BASE = apiBase();
