@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
-import { api, ApiError } from "@/lib/api";
+import { API_BASE, api, ApiError } from "@/lib/api";
 import { qk } from "@/lib/queries";
 import { toast } from "sonner";
 import { LegalDialog, type LegalDocKey } from "@/components/app/AppPanels";
@@ -302,6 +302,16 @@ function FloatingMock() {
 }
 
 export function OAuthRow({ onDemo, disabled }: { onDemo?: () => void; disabled?: boolean }) {
+  function handleGoogle() {
+    // Browser navigates to the backend, which redirects to Google, which
+    // redirects back to /api/auth/google/callback, which sets the session
+    // cookie and finally redirects to /app.
+    const returnTo = encodeURIComponent(
+      typeof window !== "undefined" ? window.location.pathname.replace(/^\/login\/?$/, "") || "/app" : "/app",
+    );
+    window.location.href = `${API_BASE}/auth/google/start?returnTo=${returnTo}`;
+  }
+
   function handleClick(provider: string) {
     if (onDemo) {
       toast.info(`${provider} sign-in not configured — using the demo workspace`);
@@ -316,7 +326,7 @@ export function OAuthRow({ onDemo, disabled }: { onDemo?: () => void; disabled?:
         type="button"
         variant="outline"
         className="h-11 gap-2 text-sm"
-        onClick={() => handleClick("Google")}
+        onClick={handleGoogle}
         disabled={disabled}
       >
         <GoogleIcon /> Google
