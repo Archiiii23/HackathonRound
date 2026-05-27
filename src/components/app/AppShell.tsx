@@ -115,6 +115,7 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
         />
         <main className="flex-1 animate-[var(--animate-fade-in)]">{children}</main>
       </div>
+      {showAiHub && <AiHubWrapper onClose={() => setShowAiHub(false)} />}
 
       {showAiHub && <AiHub onClose={() => setShowAiHub(false)} />}
       <NotificationsSheet open={showNotifications} onOpenChange={setShowNotifications} />
@@ -122,6 +123,15 @@ function AppShellInner({ children }: { children: React.ReactNode }) {
       <InviteDialog open={showInvite} onOpenChange={setShowInvite} />
     </div>
   );
+}
+
+function AiHubWrapper({ onClose }: { onClose: () => void }) {
+  const matches = useMatches();
+  // Find the match that has projectId in its params
+  const projectMatch = matches.find((m) => "projectId" in (m.params as any));
+  const projectId = (projectMatch?.params as any)?.projectId;
+
+  return <AiHub onClose={onClose} projectId={projectId} />;
 }
 
 function Sidebar({
