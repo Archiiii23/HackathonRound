@@ -7,7 +7,8 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "build:spa": "vite build --config vite.config.spa.ts && cp dist/client/_shell.html dist/client/index.html",
+    "build:spa": "vite build --config vite.config.spa.ts && cp dist/client/_shell.html dist/client/index.html && npm run build:api",
+    "build:api": "esbuild server/app.ts --bundle --platform=node --target=node20 --format=cjs --outfile=api/_server.cjs --packages=external --legal-comments=none",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
@@ -78,6 +79,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@vercel/node": "^3.2.29",
+    "esbuild": "^0.24.0",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^1.7.0",
     "@types/node": "^22.16.5",
