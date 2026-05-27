@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:spa",
+  "outputDirectory": "dist/client",
+  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "rewrites": [
+    { "source": "/((?!assets/|favicon|_shell\\.html).*)", "destination": "/index.html" }
+  ]
+}
