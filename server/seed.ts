@@ -16,6 +16,13 @@ const DEMO_EMAIL = "demo@devcollab.dev";
 const DEMO_PASSWORD = "demodemo";
 
 export async function ensureDemoUser() {
+  // Make sure the demo workspace is on pro tier so the demo never hits the
+  // free-tier limit (3 projects / 5 members). Safe to run repeatedly.
+  await Workspace.updateMany(
+    { slug: "devcollab-hq", tier: { $ne: "pro" } },
+    { $set: { tier: "pro", tierUpdatedAt: new Date() } },
+  );
+
   const existing = await User.findOne({ email: DEMO_EMAIL }).lean();
   if (existing) return { id: existing._id, email: DEMO_EMAIL, password: DEMO_PASSWORD, created: false };
   const id = newUserId();
@@ -84,6 +91,8 @@ export async function seedIfEmpty() {
     name: "DevCollab HQ",
     slug: "devcollab-hq",
     ownerId,
+    tier: "pro",
+    tierUpdatedAt: new Date(),
   });
 
   await WorkspaceMember.insertMany([

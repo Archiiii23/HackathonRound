@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Pill, Avatar, LabelChip } from "@/components/app/StatusBadge";
 import { tasksQuery } from "@/lib/queries";
 import { api, PRIORITY_META, STATUS_META, formatRelative } from "@/lib/api";
-import { Sparkles, RefreshCcw, MessageSquare, Calendar as CalIcon } from "lucide-react";
+import { Sparkles, RefreshCcw, MessageSquare, Calendar as CalIcon, Github } from "lucide-react";
 
 export const Route = createFileRoute("/app/projects/$projectId/")({
   loader: async ({ context, params }) => {

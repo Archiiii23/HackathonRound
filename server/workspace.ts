@@ -41,4 +41,4 @@ export async function getWorkspaceTier(workspaceId: string) {
   return ws?.tier ?? "free";
 }
 
-export const FREE_LIMITS = { projects: 3, members: 5 } as const;
+export const FREE_LIMITS = { projects: 10, members: 25 } as const;
