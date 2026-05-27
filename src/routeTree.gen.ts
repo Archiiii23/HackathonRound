@@ -15,11 +15,16 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppMembersRouteImport } from './routes/app.members'
+import { Route as AppIntegrationsRouteImport } from './routes/app.integrations'
+import { Route as AppBillingRouteImport } from './routes/app.billing'
 import { Route as AppProjectsProjectIdRouteImport } from './routes/app.projects.$projectId'
 import { Route as AppProjectsProjectIdIndexRouteImport } from './routes/app.projects.$projectId.index'
 import { Route as AppProjectsProjectIdWikiRouteImport } from './routes/app.projects.$projectId.wiki'
 import { Route as AppProjectsProjectIdSnippetsRouteImport } from './routes/app.projects.$projectId.snippets'
 import { Route as AppProjectsProjectIdListRouteImport } from './routes/app.projects.$projectId.list'
+import { Route as AppProjectsProjectIdCalendarRouteImport } from './routes/app.projects.$projectId.calendar'
 import { Route as AppProjectsProjectIdBoardRouteImport } from './routes/app.projects.$projectId.board'
 
 const SignupRoute = SignupRouteImport.update({
@@ -52,6 +57,26 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMembersRoute = AppMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIntegrationsRoute = AppIntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBillingRoute = AppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProjectsProjectIdRoute = AppProjectsProjectIdRouteImport.update({
   id: '/projects/$projectId',
   path: '/projects/$projectId',
@@ -81,6 +106,12 @@ const AppProjectsProjectIdListRoute =
     path: '/list',
     getParentRoute: () => AppProjectsProjectIdRoute,
   } as any)
+const AppProjectsProjectIdCalendarRoute =
+  AppProjectsProjectIdCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AppProjectsProjectIdRoute,
+  } as any)
 const AppProjectsProjectIdBoardRoute =
   AppProjectsProjectIdBoardRouteImport.update({
     id: '/board',
@@ -94,9 +125,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/app/billing': typeof AppBillingRoute
+  '/app/integrations': typeof AppIntegrationsRoute
+  '/app/members': typeof AppMembersRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
   '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
   '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
@@ -107,8 +143,13 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/app/billing': typeof AppBillingRoute
+  '/app/integrations': typeof AppIntegrationsRoute
+  '/app/members': typeof AppMembersRoute
+  '/app/profile': typeof AppProfileRoute
   '/app': typeof AppIndexRoute
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
   '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
   '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
@@ -121,9 +162,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
+  '/app/billing': typeof AppBillingRoute
+  '/app/integrations': typeof AppIntegrationsRoute
+  '/app/members': typeof AppMembersRoute
+  '/app/profile': typeof AppProfileRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/$projectId': typeof AppProjectsProjectIdRouteWithChildren
   '/app/projects/$projectId/board': typeof AppProjectsProjectIdBoardRoute
+  '/app/projects/$projectId/calendar': typeof AppProjectsProjectIdCalendarRoute
   '/app/projects/$projectId/list': typeof AppProjectsProjectIdListRoute
   '/app/projects/$projectId/snippets': typeof AppProjectsProjectIdSnippetsRoute
   '/app/projects/$projectId/wiki': typeof AppProjectsProjectIdWikiRoute
@@ -137,9 +183,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/signup'
+    | '/app/billing'
+    | '/app/integrations'
+    | '/app/members'
+    | '/app/profile'
     | '/app/'
     | '/app/projects/$projectId'
     | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
     | '/app/projects/$projectId/list'
     | '/app/projects/$projectId/snippets'
     | '/app/projects/$projectId/wiki'
@@ -150,8 +201,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/signup'
+    | '/app/billing'
+    | '/app/integrations'
+    | '/app/members'
+    | '/app/profile'
     | '/app'
     | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
     | '/app/projects/$projectId/list'
     | '/app/projects/$projectId/snippets'
     | '/app/projects/$projectId/wiki'
@@ -163,9 +219,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/signup'
+    | '/app/billing'
+    | '/app/integrations'
+    | '/app/members'
+    | '/app/profile'
     | '/app/'
     | '/app/projects/$projectId'
     | '/app/projects/$projectId/board'
+    | '/app/projects/$projectId/calendar'
     | '/app/projects/$projectId/list'
     | '/app/projects/$projectId/snippets'
     | '/app/projects/$projectId/wiki'
@@ -224,6 +285,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/members': {
+      id: '/app/members'
+      path: '/members'
+      fullPath: '/app/members'
+      preLoaderRoute: typeof AppMembersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/integrations': {
+      id: '/app/integrations'
+      path: '/integrations'
+      fullPath: '/app/integrations'
+      preLoaderRoute: typeof AppIntegrationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/billing': {
+      id: '/app/billing'
+      path: '/billing'
+      fullPath: '/app/billing'
+      preLoaderRoute: typeof AppBillingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/projects/$projectId': {
       id: '/app/projects/$projectId'
       path: '/projects/$projectId'
@@ -259,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsProjectIdListRouteImport
       parentRoute: typeof AppProjectsProjectIdRoute
     }
+    '/app/projects/$projectId/calendar': {
+      id: '/app/projects/$projectId/calendar'
+      path: '/calendar'
+      fullPath: '/app/projects/$projectId/calendar'
+      preLoaderRoute: typeof AppProjectsProjectIdCalendarRouteImport
+      parentRoute: typeof AppProjectsProjectIdRoute
+    }
     '/app/projects/$projectId/board': {
       id: '/app/projects/$projectId/board'
       path: '/board'
@@ -271,6 +367,7 @@ declare module '@tanstack/react-router' {
 
 interface AppProjectsProjectIdRouteChildren {
   AppProjectsProjectIdBoardRoute: typeof AppProjectsProjectIdBoardRoute
+  AppProjectsProjectIdCalendarRoute: typeof AppProjectsProjectIdCalendarRoute
   AppProjectsProjectIdListRoute: typeof AppProjectsProjectIdListRoute
   AppProjectsProjectIdSnippetsRoute: typeof AppProjectsProjectIdSnippetsRoute
   AppProjectsProjectIdWikiRoute: typeof AppProjectsProjectIdWikiRoute
@@ -279,6 +376,7 @@ interface AppProjectsProjectIdRouteChildren {
 
 const AppProjectsProjectIdRouteChildren: AppProjectsProjectIdRouteChildren = {
   AppProjectsProjectIdBoardRoute: AppProjectsProjectIdBoardRoute,
+  AppProjectsProjectIdCalendarRoute: AppProjectsProjectIdCalendarRoute,
   AppProjectsProjectIdListRoute: AppProjectsProjectIdListRoute,
   AppProjectsProjectIdSnippetsRoute: AppProjectsProjectIdSnippetsRoute,
   AppProjectsProjectIdWikiRoute: AppProjectsProjectIdWikiRoute,
@@ -289,11 +387,19 @@ const AppProjectsProjectIdRouteWithChildren =
   AppProjectsProjectIdRoute._addFileChildren(AppProjectsProjectIdRouteChildren)
 
 interface AppRouteChildren {
+  AppBillingRoute: typeof AppBillingRoute
+  AppIntegrationsRoute: typeof AppIntegrationsRoute
+  AppMembersRoute: typeof AppMembersRoute
+  AppProfileRoute: typeof AppProfileRoute
   AppIndexRoute: typeof AppIndexRoute
   AppProjectsProjectIdRoute: typeof AppProjectsProjectIdRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBillingRoute: AppBillingRoute,
+  AppIntegrationsRoute: AppIntegrationsRoute,
+  AppMembersRoute: AppMembersRoute,
+  AppProfileRoute: AppProfileRoute,
   AppIndexRoute: AppIndexRoute,
   AppProjectsProjectIdRoute: AppProjectsProjectIdRouteWithChildren,
 }
