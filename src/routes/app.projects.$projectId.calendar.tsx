@@ -77,7 +77,7 @@ function CalendarView() {
         <div className="skeleton h-[480px] rounded-xl" />
       ) : tasks.length === 0 ? (
         <EmptyState
-          icon={<CalendarDays className="h-6 w-6" />}
+          icon={CalendarDays}
           title="No tasks yet"
           description="Tasks with a due date will show up on this calendar."
           action={

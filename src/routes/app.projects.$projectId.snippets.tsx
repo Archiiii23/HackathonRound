@@ -589,7 +589,7 @@ function SnippetsView() {
                 <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/40 bg-muted/10 px-5 py-2.5 text-[10px] text-muted-foreground">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center gap-1">
-                      <User className="h-3 w-3" /> {snip.author.name}
+                      <User className="h-3 w-3" /> {snip.author?.name ?? "Unknown"}
                     </span>
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" /> Updated {formatRelative(snip.updatedAt)}

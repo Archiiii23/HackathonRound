@@ -106,7 +106,7 @@ function MembersPage() {
             </div>
           ) : list.length === 0 ? (
             <EmptyState
-              icon={<Users className="h-6 w-6" />}
+              icon={Users}
               title="No members yet"
               description="Invite teammates to start collaborating."
               action={

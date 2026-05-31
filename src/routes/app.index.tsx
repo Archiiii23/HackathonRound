@@ -24,6 +24,7 @@ import {
   Activity,
   Loader2,
   Zap,
+  Check,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -515,7 +516,7 @@ function RecentActivity() {
             : 0;
     return all.filter((a) => {
       if (cutoff && new Date(a.createdAt).getTime() < cutoff) return false;
-      const t = a.targetType.toLowerCase();
+      const t = (a.targetType ?? "").toLowerCase();
       if (enabledTypes[t] === false) return false;
       return true;
     });
@@ -525,7 +526,7 @@ function RecentActivity() {
     const meta = (a.meta ?? null) as { projectSlug?: string; projectId?: string } | null;
     const slug = meta?.projectSlug ?? projects.find((p) => p.id === meta?.projectId)?.slug ?? null;
     if (!slug) return null;
-    const t = a.targetType.toLowerCase();
+    const t = (a.targetType ?? "").toLowerCase();
     if (t === "task") return `/app/projects/${slug}/list`;
     if (t === "wiki") return `/app/projects/${slug}/wiki`;
     if (t === "snippet") return `/app/projects/${slug}/snippets`;
@@ -668,12 +669,19 @@ function RecentActivity() {
         <ul className="-mx-2 space-y-0.5">
           {filtered.map((a) => {
             const href = hrefFor(a);
+            const actor = a.actor ?? {
+              id: "",
+              name: "Someone",
+              email: "",
+              avatarColor: "oklch(0.65 0.14 240)",
+              initials: "??",
+            };
             const inner = (
               <>
-                <Avatar initials={a.actor.initials} color={a.actor.avatarColor} size={28} />
+                <Avatar initials={actor.initials} color={actor.avatarColor} size={28} />
                 <div className="flex-1">
                   <div className="leading-snug">
-                    <span className="font-medium">{a.actor.name}</span>{" "}
+                    <span className="font-medium">{actor.name}</span>{" "}
                     <span className="text-muted-foreground">{a.action}</span>{" "}
                     <span className="font-medium">{a.targetLabel}</span>
                   </div>

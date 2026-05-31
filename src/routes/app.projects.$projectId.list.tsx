@@ -243,14 +243,14 @@ function ListView() {
                       </td>
                       <td className={cn("hidden lg:table-cell", rowPad)}>
                         <div className="flex flex-wrap gap-1">
-                          {t.labels.slice(0, 2).map((l) => (
+                          {(t.labels ?? []).slice(0, 2).map((l) => (
                             <LabelChip key={l.name} tone={l.tone}>
                               {l.name}
                             </LabelChip>
                           ))}
-                          {t.labels.length > 2 && (
+                          {(t.labels ?? []).length > 2 && (
                             <span className="text-[10px] text-muted-foreground">
-                              +{t.labels.length - 2}
+                              +{(t.labels ?? []).length - 2}
                             </span>
                           )}
                         </div>

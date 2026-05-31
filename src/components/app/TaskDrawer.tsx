@@ -210,13 +210,13 @@ export function TaskDrawer({
             </DetailRow>
           </div>
 
-          {task.labels.length > 0 && (
+          {(task.labels ?? []).length > 0 && (
             <div className="mt-4">
               <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Labels
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
-                {task.labels.map((l) => (
+                {(task.labels ?? []).map((l) => (
                   <LabelChip key={l.name} tone={l.tone}>
                     {l.name}
                   </LabelChip>

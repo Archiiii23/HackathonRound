@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, Outlet, Link, useRouterState, notFound } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { projectQuery, qk } from "@/lib/queries";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
+import { fallbackProject } from "@/lib/query-fallbacks";
 import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { toast } from "sonner";
 import {
@@ -40,26 +41,11 @@ export const Route = createFileRoute("/app/projects/$projectId")({
     meta: [{ title: `${params.projectId} — DevCollab` }],
   }),
   loader: async ({ context, params }) => {
-    try {
-      await context.queryClient.ensureQueryData(projectQuery(params.projectId));
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 404) throw notFound();
-      await safeEnsureQueryData(context.queryClient, {
-        queryKey: qk.project(params.projectId),
-        queryFn: () => api.project(params.projectId),
-        fallback: {
-          project: {
-            id: params.projectId,
-            workspaceId: "",
-            name: "Project",
-            slug: params.projectId,
-            description: "",
-            color: "oklch(0.65 0.14 240)",
-            createdAt: new Date().toISOString(),
-          },
-        },
-      });
-    }
+    await safeEnsureQueryData(context.queryClient, {
+      queryKey: qk.project(params.projectId),
+      queryFn: () => api.project(params.projectId),
+      fallback: fallbackProject(params.projectId),
+    });
   },
   component: ProjectLayout,
 });

@@ -229,16 +229,16 @@ function BoardView() {
                       <div className="mt-1 line-clamp-2 text-sm font-medium leading-snug">
                         {t.title}
                       </div>
-                      {t.labels.length > 0 && (
+                      {(t.labels ?? []).length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {t.labels.slice(0, 3).map((l) => (
+                          {(t.labels ?? []).slice(0, 3).map((l) => (
                             <LabelChip key={l.name} tone={l.tone}>
                               {l.name}
                             </LabelChip>
                           ))}
-                          {t.labels.length > 3 && (
+                          {(t.labels ?? []).length > 3 && (
                             <span className="text-[10px] text-muted-foreground">
-                              +{t.labels.length - 3}
+                              +{(t.labels ?? []).length - 3}
                             </span>
                           )}
                         </div>

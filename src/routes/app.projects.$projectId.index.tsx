@@ -182,7 +182,7 @@ function RecentTasks() {
               <Pill color={STATUS_META[t.status].color}>{STATUS_META[t.status].label}</Pill>
               <span className="flex-1 truncate text-sm font-medium">{t.title}</span>
               <div className="hidden gap-1 md:flex">
-                {t.labels.map((l) => (
+                {(t.labels ?? []).map((l) => (
                   <LabelChip key={l.name} tone={l.tone}>
                     {l.name}
                   </LabelChip>

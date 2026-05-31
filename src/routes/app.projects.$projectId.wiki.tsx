@@ -282,7 +282,7 @@ function WikiView() {
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
-                        <UserIcon className="h-3 w-3" /> {selectedPage.author.name}
+                        <UserIcon className="h-3 w-3" /> {selectedPage.author?.name ?? "Unknown"}
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <Clock className="h-3 w-3" /> Updated{" "}
@@ -642,13 +642,13 @@ function WikiHistorySheet({
               {(versions.data?.versions ?? []).map((v) => (
                 <li key={v.id} className="space-y-2 p-4">
                   <div className="flex items-start gap-3">
-                    <Avatar initials={v.author.initials} color={v.author.avatarColor} size={28} />
+                    <Avatar initials={v.author?.initials ?? "??"} color={v.author?.avatarColor ?? "oklch(0.65 0.14 240)"} size={28} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 text-sm">
                         <span className="truncate font-medium">{v.title}</span>
                       </div>
                       <div className="mt-0.5 text-[11px] text-muted-foreground">
-                        {v.author.name} · {formatRelative(v.createdAt)}
+                        {v.author?.name ?? "Unknown"} · {formatRelative(v.createdAt)}
                       </div>
                     </div>
                     <button

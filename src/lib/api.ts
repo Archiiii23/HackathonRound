@@ -321,9 +321,17 @@ async function request<T>(path: string, init: RequestInit & { json?: unknown } =
     body,
   });
   const text = await res.text();
-  const parsed: { data?: T; error?: { message: string } } = text
-    ? (JSON.parse(text) as { data?: T; error?: { message: string } })
-    : {};
+  let parsed: { data?: T; error?: { message: string } } = {};
+  if (text) {
+    try {
+      parsed = JSON.parse(text) as { data?: T; error?: { message: string } };
+    } catch {
+      if (!res.ok) {
+        throw new ApiError(res.status, `Request failed: ${res.status}`);
+      }
+      throw new ApiError(502, "Invalid response from server");
+    }
+  }
   if (!res.ok) {
     throw new ApiError(
       res.status,
@@ -360,8 +368,17 @@ export const api = {
   createProject: (input: { name: string; description?: string; color?: string }) =>
     request<{ project: ProjectRow }>("/projects", { method: "POST", json: input }),
 
-  tasks: (projectIdOrSlug: string) =>
-    request<{ tasks: TaskRow[] }>(`/projects/${projectIdOrSlug}/tasks`),
+  tasks: async (projectIdOrSlug: string) => {
+    const res = await request<{ tasks: TaskRow[] }>(`/projects/${projectIdOrSlug}/tasks`);
+    return {
+      tasks: (res.tasks ?? []).map((t) => ({
+        ...t,
+        labels: t.labels ?? [],
+        description: t.description ?? "",
+        due: t.due ?? null,
+      })),
+    };
+  },
   createTask: (
     projectIdOrSlug: string,
     input: Partial<
@@ -406,7 +423,7 @@ export const api = {
     request<{ page: { id: string } }>(`/projects/${projectIdOrSlug}/wiki`, {
       method: "POST",
       json: input,
-    }).then((res) => ({ id: res.page.id })),
+    }).then((res) => ({ id: res.page?.id ?? "" })),
   updateWiki: (id: string, input: { title?: string; content?: string; category?: string }) =>
     request<{ ok: boolean }>(`/wiki/${id}`, { method: "PATCH", json: input }),
   deleteWiki: (id: string) => request<{ ok: boolean }>(`/wiki/${id}`, { method: "DELETE" }),
@@ -420,7 +437,7 @@ export const api = {
     request<{ snippet: { id: string } }>(`/projects/${projectIdOrSlug}/snippets`, {
       method: "POST",
       json: input,
-    }).then((res) => ({ id: res.snippet.id })),
+    }).then((res) => ({ id: res.snippet?.id ?? "" })),
   updateSnippet: (
     id: string,
     input: { title?: string; description?: string; code?: string; language?: string },
@@ -444,7 +461,7 @@ export const api = {
       }>;
     }>("/workspace/members");
     return {
-      members: res.members
+      members: (res.members ?? [])
         .filter((m): m is typeof m & { user: PublicUserFull } => !!m.user)
         .map((m) => ({
           ...m.user,
@@ -513,7 +530,7 @@ export const api = {
       }>;
     }>(`/tasks/${taskId}/comments`);
     return {
-      comments: res.comments
+      comments: (res.comments ?? [])
         .filter((c): c is typeof c & { author: PublicUser } => !!c.author)
         .map((c) => ({
           id: c.id,
@@ -592,7 +609,7 @@ export const api = {
       }>;
     }>(`/projects/${projectId}/presence`);
     return {
-      users: res.users.map((u) => ({
+      users: (res.users ?? []).map((u) => ({
         id: u.id,
         name: u.name,
         initials: u.initials,
@@ -715,6 +732,18 @@ export const PRIORITY_META: Record<Priority, { label: string; color: string }> =
   high: { label: "High", color: "oklch(0.78 0.14 80)" },
   urgent: { label: "Urgent", color: "oklch(0.6 0.22 27)" },
 };
+
+export function statusMeta(status: Status | string | undefined | null) {
+  return STATUS_META[(status as Status) ?? "todo"] ?? STATUS_META.todo;
+}
+
+export function priorityMeta(priority: Priority | string | undefined | null) {
+  return PRIORITY_META[(priority as Priority) ?? "medium"] ?? PRIORITY_META.medium;
+}
+
+export function taskLabels(task: { labels?: Label[] | null }) {
+  return task.labels ?? [];
+}
 
 export function formatRelative(value: string | number | Date): string {
   const date = new Date(value);

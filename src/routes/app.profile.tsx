@@ -38,7 +38,7 @@ function ProfilePage() {
     if (!user) return;
     setName(user.name);
     setBio(user.bio);
-    setSkills(user.skills);
+    setSkills(user.skills ?? []);
     setGithubUrl(user.githubUrl);
     setAvatarUrl(user.avatarUrl ?? "");
   }, [user?.id, user?.name, user?.bio, user?.skills, user?.githubUrl, user?.avatarUrl, user]);

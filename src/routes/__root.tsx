@@ -8,7 +8,9 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { api } from "@/lib/api";
-import { meQuery } from "@/lib/queries";
+import { meQuery, qk } from "@/lib/queries";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
+import { EMPTY_ME } from "@/lib/query-fallbacks";
 import { ThemeProvider } from "@/components/app/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
@@ -89,10 +91,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async ({ context }) => {
     try {
-      const me = await context.queryClient.ensureQueryData(meQuery());
-      if (!me.user) {
-        await api.bootstrap().catch(() => {});
-      }
+      await api.bootstrap().catch(() => {});
+      const me = await safeEnsureQueryData(context.queryClient, {
+        queryKey: qk.me,
+        queryFn: meQuery().queryFn,
+        fallback: EMPTY_ME,
+      });
       return { user: me.user };
     } catch {
       return { user: null };

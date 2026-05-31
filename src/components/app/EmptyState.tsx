@@ -2,20 +2,26 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   action,
   className,
   variant = "default",
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }> | React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
   variant?: "default" | "inline";
 }) {
+  const iconClass = variant === "inline" ? "h-4 w-4" : "h-5 w-5";
+  const iconNode = React.isValidElement(icon) ? (
+    icon
+  ) : (
+    React.createElement(icon as React.ElementType, { className: iconClass })
+  );
   if (variant === "inline") {
     return (
       <div
@@ -25,7 +31,7 @@ export function EmptyState({
         )}
       >
         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Icon className="h-4 w-4" />
+          {iconNode}
         </span>
         <div className="min-w-0 flex-1">
           <div className="font-medium">{title}</div>
@@ -49,7 +55,7 @@ export function EmptyState({
           className="absolute inset-0 rounded-2xl bg-primary/10 blur-md animate-[var(--animate-pulse-soft)]"
         />
         <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="h-5 w-5" />
+          {iconNode}
         </span>
       </div>
       <h3 className="mt-4 font-display text-base font-semibold tracking-tight">{title}</h3>

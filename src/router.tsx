@@ -5,7 +5,7 @@ import { routeTree } from "./routeTree.gen";
 export const getRouter = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 10_000, retry: 1 },
+      queries: { staleTime: 10_000, retry: false, throwOnError: false },
       mutations: { retry: 0 },
     },
   });
