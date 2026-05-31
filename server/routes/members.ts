@@ -3,7 +3,7 @@ import { z } from "zod";
 import { randomBytes } from "node:crypto";
 import { type AuthedRequest, requireUser } from "../auth.js";
 import { User, Workspace, WorkspaceInvite, WorkspaceMember } from "../models.js";
-import { publicUser } from "../serialize.js";
+import { publicUserFull } from "../serialize.js";
 import { asyncH, ensureRole, withWorkspace } from "../middleware.js";
 import { prefixedId } from "../ids.js";
 import { ok, fail } from "../util.js";
@@ -26,7 +26,7 @@ memberRoutes.get(
         .map((m) => ({
           role: m.role,
           joinedAt: m.createdAt,
-          user: userMap.get(m.userId) ? publicUser(userMap.get(m.userId)!) : null,
+          user: userMap.get(m.userId) ? publicUserFull(userMap.get(m.userId)!) : null,
         }))
         .filter((m) => m.user),
     });

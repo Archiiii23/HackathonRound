@@ -448,6 +448,9 @@ export const api = {
         .filter((m): m is typeof m & { user: PublicUserFull } => !!m.user)
         .map((m) => ({
           ...m.user,
+          bio: m.user.bio ?? "",
+          skills: m.user.skills ?? [],
+          githubUrl: m.user.githubUrl ?? "",
           role: m.role,
           joinedAt: m.joinedAt,
         })),

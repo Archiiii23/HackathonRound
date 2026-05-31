@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType, type Model } from "mongoose";
+import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
 
 const baseOpts = { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } as const };
 
@@ -295,7 +295,7 @@ PresenceSchema.index({ lastSeen: 1 }, { expireAfterSeconds: 90 });
 
 // ---------- Helper to register exactly once (Vercel re-imports modules) ----------
 function getModel<T>(name: string, schema: Schema): Model<T> {
-  return (models[name] as Model<T>) ?? model<T>(name, schema);
+  return (mongoose.models[name] as Model<T>) ?? mongoose.model<T>(name, schema);
 }
 
 export const User = getModel<InferSchemaType<typeof UserSchema>>("User", UserSchema);

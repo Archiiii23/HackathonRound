@@ -118,8 +118,10 @@ function MembersPage() {
           ) : (
             <ul className="surface-card divide-y divide-border/60 p-0">
               {list.map((m) => {
-                const Icon = ROLE_INFO[m.role].icon;
+                const role = m.role in ROLE_INFO ? m.role : "member";
+                const Icon = ROLE_INFO[role].icon;
                 const isSelf = m.id === me.data?.user?.id;
+                const skills = m.skills ?? [];
                 return (
                   <li key={m.id} className="flex items-center gap-3 p-4">
                     <Avatar initials={m.initials} color={m.avatarColor} size={36} />
@@ -133,9 +135,9 @@ function MembersPage() {
                         )}
                       </div>
                       <div className="truncate text-xs text-muted-foreground">{m.email}</div>
-                      {m.skills.length > 0 && (
+                      {skills.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
-                          {m.skills.slice(0, 4).map((s) => (
+                          {skills.slice(0, 4).map((s) => (
                             <span
                               key={s}
                               className="chip border border-border bg-muted/30 text-[10px]"
@@ -150,11 +152,11 @@ function MembersPage() {
                       Joined {formatRelative(m.joinedAt)}
                     </div>
                     <RoleSelect
-                      value={m.role}
-                      disabled={!canManage || m.role === "owner" || isSelf}
-                      onChange={(role) => updateRole.mutate({ userId: m.id, role })}
+                      value={role}
+                      disabled={!canManage || role === "owner" || isSelf}
+                      onChange={(nextRole) => updateRole.mutate({ userId: m.id, role: nextRole })}
                     />
-                    {canManage && !isSelf && m.role !== "owner" && (
+                    {canManage && !isSelf && role !== "owner" && (
                       <button
                         onClick={() => {
                           if (confirm(`Remove ${m.name} from this workspace?`)) remove.mutate(m.id);
@@ -167,7 +169,7 @@ function MembersPage() {
                     )}
                     {!canManage && (
                       <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground">
-                        <Icon className="h-3 w-3" /> {ROLE_INFO[m.role].label}
+                        <Icon className="h-3 w-3" /> {ROLE_INFO[role].label}
                       </span>
                     )}
                   </li>

@@ -68,6 +68,7 @@ export async function seedIfEmpty() {
       name: "Jordan Lee",
       passwordHash: await hashPassword("password123"),
       avatarColor: pickColor("jordan"),
+      skills: ["React", "TypeScript", "Node.js"],
     },
     {
       _id: m2,
@@ -75,6 +76,7 @@ export async function seedIfEmpty() {
       name: "Sam Patel",
       passwordHash: await hashPassword("password123"),
       avatarColor: pickColor("sam"),
+      skills: ["MongoDB", "Express", "API design"],
     },
     {
       _id: m3,
@@ -82,6 +84,7 @@ export async function seedIfEmpty() {
       name: "Riley Kim",
       passwordHash: await hashPassword("password123"),
       avatarColor: pickColor("riley"),
+      skills: ["UI/UX", "Tailwind", "Testing"],
     },
   ]);
 
@@ -181,4 +184,69 @@ export async function seedIfEmpty() {
   void TaskComment;
 
   return { seeded: true, workspaceId: wsId };
+}
+
+const TEAM_MEMBERS = [
+  {
+    email: "jordan@devcollab.dev",
+    name: "Jordan Lee",
+    role: "admin" as const,
+    skills: ["React", "TypeScript", "Node.js"],
+  },
+  {
+    email: "sam@devcollab.dev",
+    name: "Sam Patel",
+    role: "member" as const,
+    skills: ["MongoDB", "Express", "API design"],
+  },
+  {
+    email: "riley@devcollab.dev",
+    name: "Riley Kim",
+    role: "member" as const,
+    skills: ["UI/UX", "Tailwind", "Testing"],
+  },
+];
+
+/** Idempotently ensure demo workspace has a full team roster. */
+export async function ensureWorkspaceMembers() {
+  const ws =
+    (await Workspace.findOne({ slug: "devcollab-hq" }).lean()) ??
+    (await Workspace.findOne().sort({ createdAt: 1 }).lean());
+  if (!ws) return { ensured: false, reason: "no-workspace" as const };
+
+  let added = 0;
+  for (const member of TEAM_MEMBERS) {
+    let user = await User.findOne({ email: member.email }).lean();
+    if (!user) {
+      const id = newUserId();
+      await User.create({
+        _id: id,
+        email: member.email,
+        name: member.name,
+        passwordHash: await hashPassword("password123"),
+        avatarColor: pickColor(member.email),
+        skills: member.skills,
+      });
+      user = await User.findById(id).lean();
+    } else if (!user.skills?.length) {
+      await User.updateOne({ _id: user._id }, { $set: { skills: member.skills } });
+    }
+
+    const existing = await WorkspaceMember.findOne({ workspaceId: ws._id, userId: user!._id }).lean();
+    if (!existing) {
+      await WorkspaceMember.create({ workspaceId: ws._id, userId: user!._id, role: member.role });
+      added += 1;
+    }
+  }
+
+  const demo = await User.findOne({ email: DEMO_EMAIL }).lean();
+  if (demo) {
+    await WorkspaceMember.updateOne(
+      { workspaceId: ws._id, userId: demo._id },
+      { $setOnInsert: { workspaceId: ws._id, userId: demo._id, role: "admin" } },
+      { upsert: true },
+    );
+  }
+
+  return { ensured: true, workspaceId: ws._id, added };
 }
