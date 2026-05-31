@@ -397,10 +397,10 @@ export const api = {
     projectIdOrSlug: string,
     input: { title: string; content: string; category?: string },
   ) =>
-    request<{ id: string }>(`/projects/${projectIdOrSlug}/wiki`, {
+    request<{ page: { id: string } }>(`/projects/${projectIdOrSlug}/wiki`, {
       method: "POST",
       json: input,
-    }),
+    }).then((res) => ({ id: res.page.id })),
   updateWiki: (id: string, input: { title?: string; content?: string; category?: string }) =>
     request<{ ok: boolean }>(`/wiki/${id}`, { method: "PATCH", json: input }),
   deleteWiki: (id: string) => request<{ ok: boolean }>(`/wiki/${id}`, { method: "DELETE" }),
@@ -411,10 +411,10 @@ export const api = {
     projectIdOrSlug: string,
     input: { title: string; description?: string; code: string; language: string },
   ) =>
-    request<{ id: string }>(`/projects/${projectIdOrSlug}/snippets`, {
+    request<{ snippet: { id: string } }>(`/projects/${projectIdOrSlug}/snippets`, {
       method: "POST",
       json: input,
-    }),
+    }).then((res) => ({ id: res.snippet.id })),
   updateSnippet: (
     id: string,
     input: { title?: string; description?: string; code?: string; language?: string },
@@ -426,10 +426,27 @@ export const api = {
   search: (q: string) => request<SearchResults>(`/search?q=${encodeURIComponent(q)}`),
 
   ai: (input: { kind: AiKind; platform?: AiPlatform; prompt: string; context?: string }) =>
-    request<AiResult>("/ai/run", { method: "POST", json: input }),
+    request<AiResult>("/ai", { method: "POST", json: input }),
 
   // ----- members / invites -----
-  members: () => request<{ members: MemberRow[] }>("/workspace/members"),
+  members: async () => {
+    const res = await request<{
+      members: Array<{
+        role: Role;
+        joinedAt: string | number | Date;
+        user: PublicUserFull | null;
+      }>;
+    }>("/workspace/members");
+    return {
+      members: res.members
+        .filter((m): m is typeof m & { user: PublicUserFull } => !!m.user)
+        .map((m) => ({
+          ...m.user,
+          role: m.role,
+          joinedAt: m.joinedAt,
+        })),
+    };
+  },
   updateMemberRole: (userId: string, role: Role) =>
     request<{ ok: boolean }>(`/workspace/members/${userId}`, {
       method: "PATCH",
@@ -471,17 +488,39 @@ export const api = {
       githubUrl: string;
       avatarUrl: string | null;
     }>,
-  ) => request<{ user: PublicUserFull }>("/auth/me", { method: "PATCH", json: input }),
+  ) => request<{ user: PublicUserFull }>("/auth/profile", { method: "PATCH", json: input }),
   changePassword: (input: { currentPassword: string; newPassword: string }) =>
-    request<{ ok: boolean }>("/auth/me/password", { method: "POST", json: input }),
+    request<{ ok: boolean }>("/auth/password", { method: "POST", json: input }),
 
   // ----- task comments / attachments -----
-  comments: (taskId: string) =>
-    request<{ comments: CommentRow[] }>(`/tasks/${taskId}/comments`),
+  comments: async (taskId: string) => {
+    const res = await request<{
+      comments: Array<{
+        id: string;
+        body?: string;
+        content?: string;
+        createdAt: string | number | Date;
+        author: PublicUser | null;
+      }>;
+    }>(`/tasks/${taskId}/comments`);
+    return {
+      comments: res.comments
+        .filter((c): c is typeof c & { author: PublicUser } => !!c.author)
+        .map((c) => ({
+          id: c.id,
+          content: c.content ?? c.body ?? "",
+          createdAt: c.createdAt,
+          author: c.author,
+        })),
+    };
+  },
   createComment: (taskId: string, content: string) =>
     request<{ commentId: string }>(`/tasks/${taskId}/comments`, {
       method: "POST",
-      json: { content },
+      json: { body: content, content },
+    }).then((res) => {
+      const row = res as { commentId?: string; comment?: { id: string } };
+      return { commentId: row.commentId ?? row.comment?.id ?? "" };
     }),
   attachments: (taskId: string) =>
     request<{ attachments: AttachmentRow[] }>(`/tasks/${taskId}/attachments`),
@@ -500,9 +539,7 @@ export const api = {
 
   // ----- snippet tags -----
   snippetsWithTags: (projectIdOrSlug: string) =>
-    request<{ snippets: SnippetWithTags[] }>(
-      `/projects/${projectIdOrSlug}/snippets-with-tags`,
-    ),
+    request<{ snippets: SnippetWithTags[] }>(`/projects/${projectIdOrSlug}/snippets`),
   setSnippetTags: (snippetId: string, tags: string[]) =>
     request<{ tags: string[] }>(`/snippets/${snippetId}/tags`, {
       method: "PUT",
@@ -513,9 +550,8 @@ export const api = {
   wikiVersions: (pageId: string) =>
     request<{ versions: WikiVersionRow[] }>(`/wiki/${pageId}/versions`),
   revertWiki: (pageId: string, versionId: string) =>
-    request<{ ok: boolean }>(`/wiki/${pageId}/revert`, {
+    request<{ ok: boolean }>(`/wiki/${pageId}/revert/${versionId}`, {
       method: "POST",
-      json: { versionId },
     }),
 
   // ----- billing -----
@@ -524,16 +560,40 @@ export const api = {
     plan: "pro" | "free",
     card?: { number: string; cvc: string; exp: string },
   ) =>
-    request<{ ok: boolean; tier: "free" | "pro"; sandbox: boolean; receiptId: string }>(
+    request<{ ok?: boolean; tier: "free" | "pro"; sandbox?: boolean; receiptId?: string }>(
       "/billing/checkout",
       { method: "POST", json: { plan, card } },
-    ),
+    ).then((res) => ({
+      ok: true,
+      tier: res.tier,
+      sandbox: res.sandbox ?? true,
+      receiptId: res.receiptId ?? `rcpt_${Date.now()}`,
+    })),
 
   // ----- presence -----
-  presence: (projectId: string) =>
-    request<{ users: PresenceUser[] }>(`/presence/${projectId}`),
+  presence: async (projectId: string) => {
+    const res = await request<{
+      users: Array<{
+        id: string;
+        name: string;
+        initials: string;
+        color?: string;
+        avatarColor?: string;
+        lastSeen: string | number | Date;
+      }>;
+    }>(`/projects/${projectId}/presence`);
+    return {
+      users: res.users.map((u) => ({
+        id: u.id,
+        name: u.name,
+        initials: u.initials,
+        color: u.color ?? u.avatarColor ?? "oklch(0.65 0.14 240)",
+        lastSeen: new Date(u.lastSeen).getTime(),
+      })),
+    };
+  },
   presenceHeartbeat: (projectId: string) =>
-    request<{ ok: boolean }>(`/presence/${projectId}/heartbeat`, { method: "POST" }),
+    request<{ ok: boolean }>(`/projects/${projectId}/presence`, { method: "POST" }),
 
   // ----- integrations -----
   integrations: () =>

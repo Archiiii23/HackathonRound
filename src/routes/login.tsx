@@ -68,7 +68,7 @@ function LoginPage() {
     setErrors({});
     try {
       await api.bootstrap().catch(() => {});
-      const { user } = await api.login({ email: "demo@devcollab.app", password: "devcollab123" });
+      const { user } = await api.login({ email: "demo@devcollab.dev", password: "demodemo" });
       queryClient.setQueryData(qk.me, { user });
       await router.invalidate();
       toast.success("Demo workspace loaded");
@@ -137,7 +137,7 @@ function LoginPage() {
           <span className="inline-flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-primary" />
             Try the demo workspace —{" "}
-            <span className="font-mono text-foreground">demo@devcollab.app</span>
+            <span className="font-mono text-foreground">demo@devcollab.dev</span>
           </span>
         </button>
         <p className="text-center text-sm text-muted-foreground">

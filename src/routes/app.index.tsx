@@ -7,6 +7,7 @@ import { Pill, Avatar, AvatarStack } from "@/components/app/StatusBadge";
 import { EmptyState } from "@/components/app/EmptyState";
 import { activityQuery, qk, tasksQuery, workspaceSummaryQuery } from "@/lib/queries";
 import { api, PRIORITY_META, STATUS_META, formatRelative } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -42,8 +43,22 @@ export const Route = createFileRoute("/app/")({
   head: () => ({ meta: [{ title: "Workspace — DevCollab" }] }),
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(workspaceSummaryQuery()),
-      context.queryClient.ensureQueryData(activityQuery(20)),
+      safeEnsureQueryData(context.queryClient, {
+        queryKey: qk.workspaceSummary,
+        queryFn: api.workspaceSummary,
+        fallback: {
+          activeProjects: 0,
+          openTasks: 0,
+          overdue: 0,
+          memberCount: 0,
+          projects: [],
+        },
+      }),
+      safeEnsureQueryData(context.queryClient, {
+        queryKey: [...qk.activity, 20],
+        queryFn: () => api.activity(20),
+        fallback: { events: [] },
+      }),
     ]);
   },
   component: WorkspaceDashboard,

@@ -25,18 +25,16 @@ const aiSchema = z.object({
   context: z.string().max(20000).optional(),
 });
 
-aiRoutes.post(
-  "/ai",
-  requireUser,
-  withWorkspace,
-  asyncH(async (req: AuthedRequest, res: Response) => {
-    const body = aiSchema.parse(req.body);
-    const out = await runAi({
-      kind: body.kind as AiKind,
-      platform: body.platform as AiPlatform | undefined,
-      prompt: body.prompt,
-      context: body.context,
-    });
-    return ok(res, out);
-  }),
-);
+async function handleAi(req: AuthedRequest, res: Response) {
+  const body = aiSchema.parse(req.body);
+  const out = await runAi({
+    kind: body.kind as AiKind,
+    platform: body.platform as AiPlatform | undefined,
+    prompt: body.prompt,
+    context: body.context,
+  });
+  return ok(res, out);
+}
+
+aiRoutes.post("/ai", requireUser, withWorkspace, asyncH(handleAi));
+aiRoutes.post("/ai/run", requireUser, withWorkspace, asyncH(handleAi));

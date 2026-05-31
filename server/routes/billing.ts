@@ -51,6 +51,6 @@ billingRoutes.post(
       targetId: wsId,
       targetLabel: `tier:${body.plan}`,
     });
-    return ok(res, { tier: body.plan });
+    return ok(res, { tier: body.plan, sandbox: true, receiptId: `rcpt_${Date.now()}` });
   }),
 );

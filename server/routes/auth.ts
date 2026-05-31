@@ -139,25 +139,24 @@ const profileSchema = z.object({
   skills: z.array(z.string().min(1).max(40)).max(20).optional(),
 });
 
-authRoutes.patch(
-  "/auth/profile",
-  requireUser,
-  asyncH(async (req: AuthedRequest, res: Response) => {
-    const body = profileSchema.parse(req.body);
-    const update: Record<string, unknown> = {};
-    if (body.name !== undefined) update.name = body.name.trim();
-    if (body.bio !== undefined) update.bio = body.bio;
-    if (body.avatarUrl !== undefined) update.avatarUrl = body.avatarUrl;
-    if (body.githubUrl !== undefined) update.githubUrl = body.githubUrl;
-    if (body.skills !== undefined) update.skills = body.skills;
-    if (Object.keys(update).length) {
-      await User.updateOne({ _id: req.user!.id }, { $set: update });
-    }
-    const fresh = await User.findById(req.user!.id).lean();
-    if (!fresh) return fail(res, 404, "Not found");
-    return ok(res, { user: publicUserFull(fresh) });
-  }),
-);
+async function updateProfileHandler(req: AuthedRequest, res: Response) {
+  const body = profileSchema.parse(req.body);
+  const update: Record<string, unknown> = {};
+  if (body.name !== undefined) update.name = body.name.trim();
+  if (body.bio !== undefined) update.bio = body.bio;
+  if (body.avatarUrl !== undefined) update.avatarUrl = body.avatarUrl;
+  if (body.githubUrl !== undefined) update.githubUrl = body.githubUrl;
+  if (body.skills !== undefined) update.skills = body.skills;
+  if (Object.keys(update).length) {
+    await User.updateOne({ _id: req.user!.id }, { $set: update });
+  }
+  const fresh = await User.findById(req.user!.id).lean();
+  if (!fresh) return fail(res, 404, "Not found");
+  return ok(res, { user: publicUserFull(fresh) });
+}
+
+authRoutes.patch("/auth/profile", requireUser, asyncH(updateProfileHandler));
+authRoutes.patch("/auth/me", requireUser, asyncH(updateProfileHandler));
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1),
@@ -178,6 +177,17 @@ authRoutes.post(
     return ok(res, { ok: true });
   }),
 );
+
+authRoutes.post("/auth/me/password", requireUser, asyncH(async (req: AuthedRequest, res: Response) => {
+  const body = passwordSchema.parse(req.body);
+  const u = await User.findById(req.user!.id);
+  if (!u) return fail(res, 404, "Not found");
+  const ok2 = await verifyPassword(body.currentPassword, u.passwordHash);
+  if (!ok2) return fail(res, 401, "Current password is incorrect.");
+  u.passwordHash = await hashPassword(body.newPassword);
+  await u.save();
+  return ok(res, { ok: true });
+}));
 
 // ---------- Google OAuth ----------
 

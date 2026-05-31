@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/app/EmptyState";
 import { TaskDrawer } from "@/components/app/TaskDrawer";
 import { qk, tasksQuery } from "@/lib/queries";
 import { api, PRIORITY_META, STATUS_META, type Status } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import {
   Filter,
   Plus,
@@ -23,7 +24,11 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/projects/$projectId/list")({
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(tasksQuery(params.projectId));
+    await safeEnsureQueryData(context.queryClient, {
+      queryKey: qk.tasks(params.projectId),
+      queryFn: () => api.tasks(params.projectId),
+      fallback: { tasks: [] },
+    });
   },
   component: ListView,
 });

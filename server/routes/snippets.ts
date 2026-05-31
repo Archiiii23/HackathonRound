@@ -32,6 +32,43 @@ snippetRoutes.get(
   }),
 );
 
+snippetRoutes.get(
+  "/projects/:idOrSlug/snippets-with-tags",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const proj = await projectByIdOrSlug(req.workspaceId!, req.params.idOrSlug);
+    if (!proj) return fail(res, 404, "Project not found");
+    const rows = await Snippet.find({ projectId: proj._id }).sort({ createdAt: -1 }).lean();
+    const authors = await User.find({ _id: { $in: rows.map((r) => r.authorId) } }).lean();
+    const map = new Map(authors.map((u) => [u._id, publicUser(u)]));
+    return ok(res, {
+      snippets: rows.map((s) =>
+        publicSnippet(
+          s,
+          map.get(s.authorId) ?? { id: s.authorId, email: "", name: "Unknown", avatarColor: "", avatarUrl: null, initials: "??" },
+        ),
+      ),
+    });
+  }),
+);
+
+snippetRoutes.put(
+  "/snippets/:id/tags",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const s = await Snippet.findById(req.params.id);
+    if (!s) return fail(res, 404, "Snippet not found");
+    const access = await ensureProjectAccess(req.user!.id, s.projectId);
+    if (!access) return fail(res, 403, "Forbidden");
+    const body = z.object({ tags: z.array(z.string().min(1).max(40)).max(20) }).parse(req.body);
+    s.tags = body.tags as never;
+    await s.save();
+    return ok(res, { tags: s.tags });
+  }),
+);
+
 const createSchema = z.object({
   title: z.string().min(1).max(140),
   description: z.string().max(500).optional(),

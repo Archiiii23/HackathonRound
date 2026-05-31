@@ -69,7 +69,7 @@ function SignupPage() {
     setLoading(true);
     try {
       await api.bootstrap().catch(() => {});
-      const { user } = await api.login({ email: "demo@devcollab.app", password: "devcollab123" });
+      const { user } = await api.login({ email: "demo@devcollab.dev", password: "demodemo" });
       queryClient.setQueryData(qk.me, { user });
       await router.invalidate();
       toast.success("Demo workspace loaded");

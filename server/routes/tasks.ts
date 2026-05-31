@@ -216,6 +216,55 @@ taskRoutes.delete(
   }),
 );
 
+const bulkUpdateSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1),
+  status: z.enum(STATUSES).optional(),
+  assigneeId: z.string().nullable().optional(),
+});
+
+taskRoutes.post(
+  "/tasks/bulk",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const body = bulkUpdateSchema.parse(req.body);
+    const tasks = await Task.find({ _id: { $in: body.ids } }).lean();
+    if (!tasks.length) return ok(res, { ok: true, count: 0 });
+    const update: Record<string, unknown> = {};
+    if (body.status !== undefined) update.status = body.status;
+    if (body.assigneeId !== undefined) update.assigneeId = body.assigneeId;
+    if (!Object.keys(update).length) return ok(res, { ok: true, count: 0 });
+    let count = 0;
+    for (const t of tasks) {
+      const access = await ensureProjectAccess(req.user!.id, t.projectId);
+      if (!access) continue;
+      await Task.updateOne({ _id: t._id }, { $set: update });
+      count++;
+    }
+    return ok(res, { ok: true, count });
+  }),
+);
+
+taskRoutes.post(
+  "/tasks/bulk-delete",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const body = z.object({ ids: z.array(z.string().min(1)).min(1) }).parse(req.body);
+    const tasks = await Task.find({ _id: { $in: body.ids } }).lean();
+    let count = 0;
+    for (const t of tasks) {
+      const access = await ensureProjectAccess(req.user!.id, t.projectId);
+      if (!access) continue;
+      await Task.deleteOne({ _id: t._id });
+      await TaskComment.deleteMany({ taskId: t._id });
+      await TaskAttachment.deleteMany({ taskId: t._id });
+      count++;
+    }
+    return ok(res, { ok: true, count });
+  }),
+);
+
 // ---------- Comments ----------
 
 const mentionRegex = /@([a-zA-Z0-9._-]+)/g;
@@ -236,6 +285,7 @@ taskRoutes.get(
       comments: comments.map((c) => ({
         id: c._id,
         body: c.body,
+        content: c.body,
         mentions: c.mentions ?? [],
         author: map.get(c.authorId) ?? null,
         createdAt: c.createdAt,
@@ -253,8 +303,14 @@ taskRoutes.post(
     if (!t) return fail(res, 404, "Task not found");
     const access = await ensureProjectAccess(req.user!.id, t.projectId);
     if (!access) return fail(res, 403, "Forbidden");
-    const schema = z.object({ body: z.string().min(1).max(4000) });
-    const body = schema.parse(req.body);
+    const schema = z.object({
+      body: z.string().min(1).max(4000).optional(),
+      content: z.string().min(1).max(4000).optional(),
+    });
+    const parsed = schema.parse(req.body);
+    const text = parsed.body ?? parsed.content;
+    if (!text) return fail(res, 400, "Comment body required");
+    const body = { body: text };
 
     const mentions: string[] = [];
     let m: RegExpExecArray | null;
@@ -306,9 +362,11 @@ taskRoutes.post(
     return ok(
       res,
       {
+        commentId: id,
         comment: {
           id,
           body: body.body,
+          content: body.body,
           mentions: mentionUserIds,
           author: publicUser({
             _id: req.user!.id,
@@ -385,6 +443,25 @@ taskRoutes.delete(
   withWorkspace,
   asyncH(async (req: AuthedRequest, res: Response) => {
     const a = await TaskAttachment.findById(req.params.id).lean();
+    if (!a) return fail(res, 404, "Attachment not found");
+    const t = await Task.findById(a.taskId).lean();
+    if (!t) return fail(res, 404, "Task missing");
+    const access = await ensureProjectAccess(req.user!.id, t.projectId);
+    if (!access) return fail(res, 403, "Forbidden");
+    await TaskAttachment.deleteOne({ _id: a._id });
+    return ok(res, { ok: true });
+  }),
+);
+
+taskRoutes.delete(
+  "/tasks/:taskId/attachments/:attachmentId",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const a = await TaskAttachment.findOne({
+      _id: req.params.attachmentId,
+      taskId: req.params.taskId,
+    }).lean();
     if (!a) return fail(res, 404, "Attachment not found");
     const t = await Task.findById(a.taskId).lean();
     if (!t) return fail(res, 404, "Task missing");

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/EmptyState";
 import { qk, wikiQuery, wikiVersionsQuery } from "@/lib/queries";
 import { api, formatRelative, type WikiPageRow } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -34,7 +35,11 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/projects/$projectId/wiki")({
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(wikiQuery(params.projectId));
+    await safeEnsureQueryData(context.queryClient, {
+      queryKey: qk.wiki(params.projectId),
+      queryFn: () => api.wiki(params.projectId),
+      fallback: { pages: [] },
+    });
   },
   component: WikiView,
 });

@@ -18,6 +18,7 @@ import {
   type NotionPage,
   type SlackChannel,
 } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -40,8 +41,19 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/app/integrations")({
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(integrationsQuery()),
-      context.queryClient.ensureQueryData(projectsQuery()),
+      safeEnsureQueryData(context.queryClient, {
+        queryKey: qk.integrations,
+        queryFn: api.integrations,
+        fallback: {
+          integrations: [],
+          configured: { github: false, slack: false, notion: false },
+        },
+      }),
+      safeEnsureQueryData(context.queryClient, {
+        queryKey: qk.projects,
+        queryFn: api.projects,
+        fallback: { projects: [] },
+      }),
     ]);
   },
   component: IntegrationsView,

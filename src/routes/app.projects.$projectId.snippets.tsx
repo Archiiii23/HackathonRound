@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/EmptyState";
 import { qk, snippetsTaggedQuery } from "@/lib/queries";
 import { api, formatRelative, type SnippetWithTags } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { toast } from "sonner";
 import {
   Code2,
@@ -27,7 +28,11 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/projects/$projectId/snippets")({
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(snippetsTaggedQuery(params.projectId));
+    await safeEnsureQueryData(context.queryClient, {
+      queryKey: qk.snippetsTagged(params.projectId),
+      queryFn: () => api.snippetsWithTags(params.projectId),
+      fallback: { snippets: [] },
+    });
   },
   component: SnippetsView,
 });

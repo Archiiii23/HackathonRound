@@ -11,7 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { projectQuery } from "@/lib/queries";
+import { projectQuery, qk } from "@/lib/queries";
+import { api, ApiError } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import { toast } from "sonner";
 import {
   Plus,
@@ -40,8 +42,23 @@ export const Route = createFileRoute("/app/projects/$projectId")({
   loader: async ({ context, params }) => {
     try {
       await context.queryClient.ensureQueryData(projectQuery(params.projectId));
-    } catch {
-      throw notFound();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) throw notFound();
+      await safeEnsureQueryData(context.queryClient, {
+        queryKey: qk.project(params.projectId),
+        queryFn: () => api.project(params.projectId),
+        fallback: {
+          project: {
+            id: params.projectId,
+            workspaceId: "",
+            name: "Project",
+            slug: params.projectId,
+            description: "",
+            color: "oklch(0.65 0.14 240)",
+            createdAt: new Date().toISOString(),
+          },
+        },
+      });
     }
   },
   component: ProjectLayout,

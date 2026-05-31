@@ -175,7 +175,35 @@ wikiRoutes.post(
     const v = await WikiVersion.findOne({ _id: req.params.versionId, pageId: p._id }).lean();
     if (!v) return fail(res, 404, "Version not found");
 
-    // Snapshot current before reverting
+    await WikiVersion.create({
+      _id: prefixedId("wiv"),
+      pageId: p._id,
+      title: p.title,
+      content: p.content,
+      category: p.category,
+      authorId: p.authorId,
+    });
+    p.title = v.title;
+    p.content = v.content;
+    p.category = v.category;
+    await p.save();
+    return ok(res, { ok: true });
+  }),
+);
+
+wikiRoutes.post(
+  "/wiki/:id/revert",
+  requireUser,
+  withWorkspace,
+  asyncH(async (req: AuthedRequest, res: Response) => {
+    const body = z.object({ versionId: z.string().min(1) }).parse(req.body);
+    const p = await WikiPage.findById(req.params.id);
+    if (!p) return fail(res, 404, "Wiki page not found");
+    const access = await ensureProjectAccess(req.user!.id, p.projectId);
+    if (!access) return fail(res, 403, "Forbidden");
+    const v = await WikiVersion.findOne({ _id: body.versionId, pageId: p._id }).lean();
+    if (!v) return fail(res, 404, "Version not found");
+
     await WikiVersion.create({
       _id: prefixedId("wiv"),
       pageId: p._id,

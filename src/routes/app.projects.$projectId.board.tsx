@@ -15,6 +15,7 @@ import {
   type Status,
   type TaskRow,
 } from "@/lib/api";
+import { safeEnsureQueryData } from "@/lib/safe-loader";
 import {
   Plus,
   Filter,
@@ -40,7 +41,11 @@ const searchSchema = z.object({ new: z.string().optional(), task: z.string().opt
 export const Route = createFileRoute("/app/projects/$projectId/board")({
   validateSearch: searchSchema,
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(tasksQuery(params.projectId));
+    await safeEnsureQueryData(context.queryClient, {
+      queryKey: qk.tasks(params.projectId),
+      queryFn: () => api.tasks(params.projectId),
+      fallback: { tasks: [] },
+    });
   },
   component: BoardView,
 });
