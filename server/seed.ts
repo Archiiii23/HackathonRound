@@ -1,5 +1,6 @@
 import { prefixedId, slugify } from "./ids.js";
 import { hashPassword, pickColor, newUserId } from "./auth.js";
+import { DEMO_ACCOUNT, PRO_ACCOUNT, PRO_WORKSPACE_SLUG } from "./accounts.js";
 import {
   Project,
   Snippet,
@@ -12,8 +13,8 @@ import {
   Activity,
 } from "./models.js";
 
-const DEMO_EMAIL = "demo@devcollab.dev";
-const DEMO_PASSWORD = "demodemo";
+const DEMO_EMAIL = DEMO_ACCOUNT.email;
+const DEMO_PASSWORD = DEMO_ACCOUNT.password;
 
 export async function ensureDemoUser() {
   // Make sure the demo workspace is on pro tier so the demo never hits the
@@ -249,4 +250,96 @@ export async function ensureWorkspaceMembers() {
   }
 
   return { ensured: true, workspaceId: ws._id, added };
+}
+
+const PRO_PROJECTS = [
+  { name: "DevCollab Platform", description: "The collaborative dev workspace.", color: "oklch(0.65 0.14 240)", icon: "Sparkles" },
+  { name: "Mobile App", description: "iOS + Android client.", color: "oklch(0.7 0.15 155)", icon: "Smartphone" },
+  { name: "Marketing Site", description: "Public-facing marketing pages.", color: "oklch(0.78 0.14 80)", icon: "Globe" },
+  { name: "AI Hub Experiments", description: "Pro-only AI workflows and automations.", color: "oklch(0.72 0.18 300)", icon: "Sparkles" },
+  { name: "Enterprise Integrations", description: "GitHub, Slack, and webhook pipelines.", color: "oklch(0.68 0.12 200)", icon: "Plug" },
+];
+
+/** Hardcoded Pro account — owner of a dedicated Pro workspace with no free-tier limits. */
+export async function ensureProUser() {
+  const { email, password, name } = PRO_ACCOUNT;
+  const passwordHash = await hashPassword(password);
+
+  let user = await User.findOne({ email }).lean();
+  if (!user) {
+    const id = newUserId();
+    await User.create({
+      _id: id,
+      email,
+      name,
+      passwordHash,
+      avatarColor: pickColor(email),
+      skills: ["Full Stack", "DevOps", "AI", "Product"],
+      bio: "DevCollab Pro demo account — unlimited projects and members.",
+    });
+    user = await User.findById(id).lean();
+  } else {
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          passwordHash,
+          name,
+          skills: user.skills?.length ? user.skills : ["Full Stack", "DevOps", "AI", "Product"],
+        },
+      },
+    );
+  }
+
+  let ws = await Workspace.findOne({ slug: PRO_WORKSPACE_SLUG }).lean();
+  let workspaceCreated = false;
+  if (!ws) {
+    const wsId = prefixedId("ws");
+    await Workspace.create({
+      _id: wsId,
+      name: "DevCollab Pro HQ",
+      slug: PRO_WORKSPACE_SLUG,
+      ownerId: user!._id,
+      tier: "pro",
+      tierUpdatedAt: new Date(),
+    });
+    ws = await Workspace.findById(wsId).lean();
+    workspaceCreated = true;
+  } else {
+    await Workspace.updateOne(
+      { _id: ws._id },
+      { $set: { tier: "pro", tierUpdatedAt: new Date(), ownerId: user!._id } },
+    );
+  }
+
+  await WorkspaceMember.updateOne(
+    { workspaceId: ws!._id, userId: user!._id },
+    { $set: { role: "owner" } },
+    { upsert: true },
+  );
+
+  const projectCount = await Project.countDocuments({ workspaceId: ws!._id });
+  if (projectCount === 0) {
+    for (const p of PRO_PROJECTS) {
+      await Project.create({
+        _id: prefixedId("prj"),
+        workspaceId: ws!._id,
+        name: p.name,
+        slug: slugify(p.name),
+        description: p.description,
+        color: p.color,
+        icon: p.icon,
+      });
+    }
+  }
+
+  return {
+    id: user!._id,
+    email,
+    password,
+    tier: "pro" as const,
+    workspaceId: ws!._id,
+    workspaceCreated,
+    created: workspaceCreated,
+  };
 }

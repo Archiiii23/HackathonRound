@@ -20,7 +20,7 @@ import { prefixedId, nanoid, slugify } from "../ids.js";
 import { publicUser, publicUserFull } from "../serialize.js";
 import { asyncH } from "../middleware.js";
 import { ok, fail } from "../util.js";
-import { seedIfEmpty, ensureDemoUser, ensureWorkspaceMembers } from "../seed.js";
+import { seedIfEmpty, ensureDemoUser, ensureProUser, ensureWorkspaceMembers } from "../seed.js";
 
 export const authRoutes = Router();
 
@@ -29,8 +29,9 @@ authRoutes.post(
   asyncH(async (_req: AuthedRequest, res: Response) => {
     const seed = await seedIfEmpty();
     const demo = await ensureDemoUser();
+    const pro = await ensureProUser();
     const members = await ensureWorkspaceMembers();
-    return ok(res, { ...seed, demo, members });
+    return ok(res, { ...seed, demo, pro, members });
   }),
 );
 
@@ -91,6 +92,7 @@ authRoutes.post(
   asyncH(async (req: AuthedRequest, res: Response) => {
     await seedIfEmpty().catch(() => {});
     await ensureDemoUser().catch(() => {});
+    await ensureProUser().catch(() => {});
     await ensureWorkspaceMembers().catch(() => {});
     const body = loginSchema.parse(req.body);
     const row = await User.findOne({ email: body.email.toLowerCase() }).lean();

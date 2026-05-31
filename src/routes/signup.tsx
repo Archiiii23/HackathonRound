@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { AuthShell, OAuthRow, Divider, Field, PasswordField, Spinner, User, Mail } from "./login";
 import { api, ApiError } from "@/lib/api";
+import { DEMO_ACCOUNT, PRO_ACCOUNT } from "@/lib/accounts";
 import { qk } from "@/lib/queries";
 import { toast } from "sonner";
 import { ArrowRight, Check } from "lucide-react";
@@ -69,7 +70,10 @@ function SignupPage() {
     setLoading(true);
     try {
       await api.bootstrap().catch(() => {});
-      const { user } = await api.login({ email: "demo@devcollab.dev", password: "demodemo" });
+      const { user } = await api.login({
+        email: DEMO_ACCOUNT.email,
+        password: DEMO_ACCOUNT.password,
+      });
       queryClient.setQueryData(qk.me, { user });
       await router.invalidate();
       toast.success("Demo workspace loaded");
@@ -77,6 +81,26 @@ function SignupPage() {
     } catch (err) {
       setErrors({
         form: err instanceof ApiError ? err.message : "Demo sign-in failed.",
+      });
+      setLoading(false);
+    }
+  }
+
+  async function usePro() {
+    setLoading(true);
+    try {
+      await api.bootstrap().catch(() => {});
+      const { user } = await api.login({
+        email: PRO_ACCOUNT.email,
+        password: PRO_ACCOUNT.password,
+      });
+      queryClient.setQueryData(qk.me, { user });
+      await router.invalidate();
+      toast.success("Pro workspace loaded");
+      navigate({ to: "/app" });
+    } catch (err) {
+      setErrors({
+        form: err instanceof ApiError ? err.message : "Pro sign-in failed.",
       });
       setLoading(false);
     }

@@ -23,7 +23,10 @@ billingRoutes.get(
     return ok(res, {
       tier: ws?.tier ?? "free",
       tierUpdatedAt: ws?.tierUpdatedAt ?? null,
-      limits: { ...FREE_LIMITS },
+      limits:
+        ws?.tier === "pro"
+          ? { projects: null, members: null }
+          : { ...FREE_LIMITS },
       usage: { projects, members },
     });
   }),

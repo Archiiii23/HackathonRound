@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { API_BASE, api, ApiError } from "@/lib/api";
+import { DEMO_ACCOUNT, PRO_ACCOUNT } from "@/lib/accounts";
 import { qk } from "@/lib/queries";
 import { toast } from "sonner";
 import { LegalDialog, type LegalDocKey } from "@/components/app/AppPanels";
@@ -68,7 +69,10 @@ function LoginPage() {
     setErrors({});
     try {
       await api.bootstrap().catch(() => {});
-      const { user } = await api.login({ email: "demo@devcollab.dev", password: "demodemo" });
+      const { user } = await api.login({
+        email: DEMO_ACCOUNT.email,
+        password: DEMO_ACCOUNT.password,
+      });
       queryClient.setQueryData(qk.me, { user });
       await router.invalidate();
       toast.success("Demo workspace loaded");
@@ -76,6 +80,27 @@ function LoginPage() {
     } catch (err) {
       setErrors({
         form: err instanceof ApiError ? err.message : "Demo sign-in failed.",
+      });
+      setLoading(false);
+    }
+  }
+
+  async function usePro() {
+    setLoading(true);
+    setErrors({});
+    try {
+      await api.bootstrap().catch(() => {});
+      const { user } = await api.login({
+        email: PRO_ACCOUNT.email,
+        password: PRO_ACCOUNT.password,
+      });
+      queryClient.setQueryData(qk.me, { user });
+      await router.invalidate();
+      toast.success("Pro workspace loaded — unlimited projects & members");
+      navigate({ to: "/app" });
+    } catch (err) {
+      setErrors({
+        form: err instanceof ApiError ? err.message : "Pro sign-in failed.",
       });
       setLoading(false);
     }
@@ -130,6 +155,20 @@ function LoginPage() {
         </Button>
         <button
           type="button"
+          onClick={usePro}
+          disabled={loading}
+          className="w-full rounded-lg border border-primary/40 bg-primary/10 px-3 py-2.5 text-xs text-foreground transition-colors hover:border-primary/60 hover:bg-primary/15 disabled:opacity-50"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3 text-primary" />
+            Pro workspace —{" "}
+            <span className="font-mono">{PRO_ACCOUNT.email}</span>
+            <span className="text-muted-foreground">· password</span>{" "}
+            <span className="font-mono">{PRO_ACCOUNT.password}</span>
+          </span>
+        </button>
+        <button
+          type="button"
           onClick={useDemo}
           disabled={loading}
           className="w-full rounded-lg border border-dashed border-primary/30 bg-primary/[0.03] px-3 py-2.5 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:opacity-50"
@@ -137,7 +176,7 @@ function LoginPage() {
           <span className="inline-flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-primary" />
             Try the demo workspace —{" "}
-            <span className="font-mono text-foreground">demo@devcollab.dev</span>
+            <span className="font-mono text-foreground">{DEMO_ACCOUNT.email}</span>
           </span>
         </button>
         <p className="text-center text-sm text-muted-foreground">
