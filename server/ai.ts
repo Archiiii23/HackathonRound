@@ -52,7 +52,7 @@ export type AiStructured =
 export interface AiResponse {
   output: string;
   model: string;
-  provider: "openai" | "mock";
+  provider: "openai" | "gemini" | "mock";
   data?: AiStructured;
 }
 
@@ -147,6 +147,42 @@ function tryParseStructured(kind: AiKind, raw: string): AiStructured | undefined
     /* fall through */
   }
   return undefined;
+}
+
+async function callGemini(req: AiRequest, platform: AiPlatform): Promise<AiResponse | null> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return null;
+  const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  const userParts: string[] = [];
+  if (req.context) userParts.push(`Context:\n${req.context}`);
+  userParts.push(req.prompt);
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: systemPrompt(req.kind, platform) }],
+        },
+        contents: [{ role: "user", parts: [{ text: userParts.join("\n\n") }] }],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 1024,
+        },
+      }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const output = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!output) return null;
+    return { output, model, provider: "gemini" };
+  } catch {
+    return null;
+  }
 }
 
 async function callOpenAi(req: AiRequest, platform: AiPlatform): Promise<AiResponse | null> {
@@ -283,12 +319,22 @@ function deterministicOutput(req: AiRequest, platform: AiPlatform): string {
 }
 
 export async function runAi(req: AiRequest): Promise<AiResponse> {
-  const platform = req.platform ?? "gpt";
-  const fromLlm = await callOpenAi(req, platform);
-  if (fromLlm) {
-    const parsed = tryParseStructured(req.kind, fromLlm.output);
-    return { ...fromLlm, data: parsed };
+  const platform = req.platform ?? "gemini";
+
+  if (process.env.GEMINI_API_KEY) {
+    const fromGemini = await callGemini(req, platform);
+    if (fromGemini) {
+      const parsed = tryParseStructured(req.kind, fromGemini.output);
+      return { ...fromGemini, data: parsed };
+    }
   }
+
+  const fromOpenAi = await callOpenAi(req, platform);
+  if (fromOpenAi) {
+    const parsed = tryParseStructured(req.kind, fromOpenAi.output);
+    return { ...fromOpenAi, data: parsed };
+  }
+
   const output = deterministicOutput(req, platform);
   const parsed = tryParseStructured(req.kind, output);
   return { output, model: "mock-1.0", provider: "mock", data: parsed };

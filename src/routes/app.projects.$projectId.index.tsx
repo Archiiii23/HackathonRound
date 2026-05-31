@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Pill, Avatar, LabelChip } from "@/components/app/StatusBadge";
 import { qk, tasksQuery } from "@/lib/queries";
-import { api, PRIORITY_META, STATUS_META, formatRelative } from "@/lib/api";
+import { api, PRIORITY_META, STATUS_META, formatRelative, formatAiProvider } from "@/lib/api";
 import { safeEnsureQueryData } from "@/lib/safe-loader";
 import {
   Sparkles,
@@ -104,7 +104,7 @@ function AiSummaryCard({ projectId }: { projectId: string }) {
               <h3 className="font-display font-semibold">AI summary</h3>
               {provider && (
                 <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
-                  {provider === "openai" ? "OpenAI" : "Local fallback"}
+                  {formatAiProvider(provider as "openai" | "gemini" | "mock")}
                 </span>
               )}
             </div>

@@ -160,8 +160,14 @@ export type AiStructured =
 export interface AiResult {
   output: string;
   model: string;
-  provider: "openai" | "mock";
+  provider: "openai" | "gemini" | "mock";
   data?: AiStructured;
+}
+
+export function formatAiProvider(provider: AiResult["provider"]): string {
+  if (provider === "openai") return "OpenAI";
+  if (provider === "gemini") return "Gemini";
+  return "Local fallback";
 }
 
 export interface CommentRow {

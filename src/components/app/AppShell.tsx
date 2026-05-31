@@ -5,6 +5,7 @@ import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import {
   api,
+  formatAiProvider,
   type AiPlatform,
   type AiResult,
   type AiStructured,
@@ -955,7 +956,7 @@ function AiHub({ onClose }: { onClose: () => void }) {
                 <div className="space-y-3 animate-[var(--animate-rise-in)]">
                   <div className="flex items-center justify-between">
                     <span className="chip tone-info">
-                      {response.provider === "openai" ? "OpenAI" : "Local fallback"} •{" "}
+                      {formatAiProvider(response.provider)} •{" "}
                       {response.model}
                     </span>
                     <button
